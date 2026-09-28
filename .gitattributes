@@ -1,0 +1,2 @@
+# La malla del cerebro es binaria: sin conversión de fin de línea ni diff de texto.
+public/cerebro/*.bin -text -diff

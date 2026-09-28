@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- LO QUE SE VE AL PEGAR EL ENLACE va lo primero de la cabecera, antes que
+         nada salvo el juego de caracteres. Los lectores de enlaces —el de
+         WhatsApp el que más— no leen la página entera: se quedan con el primer
+         tramo de la cabecera y cierran la conexión. Con los comentarios y los
+         iconos por delante, estas etiquetas empezaban a dos mil caracteres del
+         principio. La explicación larga de cada archivo está en docs/MARCA.md;
+         aquí sólo va lo justo.
+
+         La dirección de la imagen es ABSOLUTA a propósito: los lectores de
+         enlaces no resuelven rutas relativas de forma fiable. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Psicología DM-1" />
+    <meta property="og:locale" content="es_SV" />
+    <meta property="og:title" content="Psicología DM-1" />
+    <meta property="og:description" content="Psicología del Destacamento Militar N.º 1: evaluación por enlace, baterías configurables y estadística anónima." />
+    <meta property="og:url" content="https://psicologia.cybervaltorix.com/" />
+    <meta property="og:image" content="https://psicologia.cybervaltorix.com/tarjeta-social.png" />
+    <meta property="og:image:secure_url" content="https://psicologia.cybervaltorix.com/tarjeta-social.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Escudo del Destacamento Militar N.º 1 junto al nombre del sistema." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Psicología DM-1" />
+    <meta name="twitter:description" content="Psicología del Destacamento Militar N.º 1: evaluación por enlace, baterías configurables y estadística anónima." />
+    <meta name="twitter:image" content="https://psicologia.cybervaltorix.com/tarjeta-social.png" />
+
+    <title>Psicología DM-1</title>
+    <meta name="description" content="Psicología del Destacamento Militar N.º 1" />
+    <!-- `viewport-fit=cover` lleva la aplicación hasta los bordes del iPhone;
+         el notch y la barra de gestos los respeta la interfaz con los márgenes
+         seguros de `src/estilos/vidrio.css`, no recortando la pantalla. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- El escudo de la unidad. Todos los tamaños salen de
+         `escritorio/recursos/icon.png` con `npm run iconos` (ver docs/MARCA.md).
+         El .ico no sobra al lado del .png: el navegador lo pide por su cuenta. -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="512x512" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- AÑADIDA A LA PANTALLA DE INICIO DEL IPHONE. Estas cuatro etiquetas son
+         lo que separa un acceso directo a una página de una aplicación: sin la
+         primera, el enlace abre Safari con su barra; sin la segunda, queda una
+         franja blanca donde va el reloj; la tercera es el nombre que cabe bajo
+         el icono, y la cuarta es la misma promesa para Android.
+         El camino para instalarla está explicado dentro de la propia
+         aplicación (componente `Instalar.tsx`). -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Psico DM-1" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Los mismos valores exactos de --c-fondo en `src/index.css`. -->
+    <meta name="theme-color" content="#f1efe9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0c0e0d" media="(prefers-color-scheme: dark)" />
+  </head>
+  <body>
+    <script>
+      // evita el parpadeo de tema antes de que React monte
+      (function () {
+        var p = localStorage.getItem('dm1-tema') || 'sistema'
+        var t = p === 'sistema'
+          ? (matchMedia('(prefers-color-scheme: light)').matches ? 'claro' : 'oscuro')
+          : p
+        document.documentElement.dataset.tema = t
+        document.documentElement.style.colorScheme = t === 'claro' ? 'light' : 'dark'
+      })()
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

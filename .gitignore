@@ -1,0 +1,62 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+/dist
+dist-escritorio
+dist-instalador
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Variables de entorno
+.env
+.env.local
+.env.*.local
+.vercel
+
+# Semilla de datos del instalador: son expedientes clínicos, no código.
+escritorio/recursos/semilla.json
+
+# Lienzo de diseño ya ensamblado: 2,5 MB de editor empaquetado que se vuelve a
+# generar desde los artboards con `seed-canvas.mjs`. Lo que se versiona son las
+# fuentes (anatomia.js, *.dc.html, canvas.json), no el ensamblado.
+diseno/**/atlas-anatomico-dm1.html
+
+# Resultados de las pruebas de navegador: trazas y capturas de un fallo concreto,
+# que se regeneran corriéndolas otra vez.
+test-results
+playwright-report
+blob-report
+.playwright
+
+# Conversión temporal de la tipografía al generar los iconos.
+.iconos-tmp
+
+# Bytecode de los scripts del puente del atlas: se regenera solo.
+__pycache__/
+*.pyc
+
+# Capturas del simulador de pantallas
+capturas/
+herramientas/modelos/node_modules
+!vendor/**/dist/
+
+# Conversión temporal de fuentes y capturas de pruebas
+__pycache__/

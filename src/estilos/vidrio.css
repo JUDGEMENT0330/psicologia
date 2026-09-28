@@ -1,0 +1,831 @@
+/* ============================================================================
+   VIDRIO — la capa de material de la aplicación de iPhone
+   ----------------------------------------------------------------------------
+   El sistema tipográfico de `index.css` sigue mandando en el documento: la
+   retícula, la tinta, el filete doble del encabezado. Lo que añade este archivo
+   es el MATERIAL de lo que flota por encima del documento —barra de pestañas,
+   cabecera, hojas, tarjetas— siguiendo el lenguaje de Apple: una lámina
+   translúcida que desenfoca y satura lo que tiene detrás, con un filo especular
+   arriba donde la luz la toca, y una sombra que crece con el tamaño de la
+   superficie.
+
+   Tres reglas que no se rompen, porque son las que separan el vidrio del
+   plástico:
+
+     1. El vidrio nunca se apila sobre vidrio claro. Una lámina sobre otra deja
+        el texto ilegible. Lo que va encima de una hoja es sólido.
+     2. Cuanto mayor la superficie, más grueso el desenfoque y más profunda la
+        sombra. Una pastilla de 28 px no puede pesar lo mismo que una hoja.
+     3. Todo tiene salida sin transparencia. `prefers-reduced-transparency` y
+        `prefers-contrast` devuelven superficies opacas con borde definido, y
+        la impresión las aplana del todo. El expediente se archiva en papel.
+   ========================================================================== */
+
+:root {
+  /* --- material ---------------------------------------------------------
+     Cuatro pesos. `fino` es el de los controles pequeños, `regular` el de la
+     mayoría de la cromática, `grueso` el de las hojas que tapan el contenido y
+     `velo` el fondo oscurecido que hay detrás de una hoja modal. */
+  --vidrio-fino: rgb(251 250 247 / 0.55);
+  --vidrio-regular: rgb(251 250 247 / 0.68);
+  --vidrio-grueso: rgb(248 246 241 / 0.82);
+  --vidrio-tinte: rgb(31 92 61 / 0.10);
+
+  --vidrio-borde: rgb(255 255 255 / 0.55);
+  --vidrio-borde-bajo: rgb(20 20 15 / 0.06);
+  --vidrio-filo: rgb(255 255 255 / 0.85);
+
+  --desenfoque-fino: 14px;
+  --desenfoque-regular: 24px;
+  --desenfoque-grueso: 40px;
+  --saturacion: 180%;
+
+  /* Sombras de contacto. No son decoración: son lo que dice a qué altura está
+     la lámina respecto del documento que se desliza por debajo. */
+  --sombra-chip: 0 1px 2px rgb(20 20 15 / 0.06), 0 4px 12px rgb(20 20 15 / 0.06);
+  --sombra-flotante: 0 2px 6px rgb(20 20 15 / 0.07), 0 12px 32px rgb(20 20 15 / 0.12);
+  --sombra-hoja: 0 -2px 10px rgb(20 20 15 / 0.06), 0 -18px 60px rgb(20 20 15 / 0.18);
+
+  /* --- radios ---
+     La escala de esquinas de iOS. El radio grande de una hoja y el pequeño de
+     un campo no son el mismo valor escalado: son escalones distintos. */
+  --r-chip: 10px;
+  --r-control: 12px;
+  --r-tarjeta: 18px;
+  --r-hoja: 28px;
+  --r-pastilla: 999px;
+
+  /* --- márgenes seguros ---
+     El notch arriba, la barra de gestos abajo. Se leen una vez aquí para que
+     ninguna pantalla los vuelva a escribir a mano. */
+  --seguro-arriba: env(safe-area-inset-top, 0px);
+  --seguro-abajo: env(safe-area-inset-bottom, 0px);
+  --seguro-izq: env(safe-area-inset-left, 0px);
+  --seguro-der: env(safe-area-inset-right, 0px);
+
+  /* Alto de la barra de pestañas flotante, incluido el margen de gestos: lo
+     usa el contenido para no terminar por debajo de ella. */
+  --alto-pestanas: calc(58px + var(--seguro-abajo));
+
+  /* --- resortes ---
+     Aproximación en curva de Bézier a los dos muelles de Apple. El primero es
+     el crítico —llega y se para, sin rebote—: vale para todo lo que no venga
+     de un gesto. El segundo lleva un rebote corto y sólo se usa cuando el dedo
+     traía impulso. La duración no es «lo que dura»: es el tiempo de respuesta.
+     Los gestos de verdad no usan estas curvas sino el muelle de `resorte.ts`,
+     que sí sabe heredar velocidad y dejarse interrumpir. */
+  --muelle: cubic-bezier(0.32, 0.72, 0, 1);
+  --muelle-rebote: cubic-bezier(0.22, 1.2, 0.36, 1);
+  --respuesta: 400ms;
+  --respuesta-corta: 280ms;
+}
+
+:root[data-tema='oscuro'] {
+  /* En oscuro el vidrio no es blanco transparente: es negro transparente con
+     un filo tenue. Un vidrio claro sobre fondo grafito se lee como niebla. */
+  --vidrio-fino: rgb(20 23 22 / 0.55);
+  --vidrio-regular: rgb(20 23 22 / 0.70);
+  --vidrio-grueso: rgb(16 19 18 / 0.86);
+  --vidrio-tinte: rgb(88 169 124 / 0.10);
+
+  --vidrio-borde: rgb(255 255 255 / 0.14);
+  --vidrio-borde-bajo: rgb(0 0 0 / 0.5);
+  --vidrio-filo: rgb(255 255 255 / 0.22);
+
+  --sombra-chip: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 12px rgb(0 0 0 / 0.35);
+  --sombra-flotante: 0 2px 6px rgb(0 0 0 / 0.45), 0 12px 32px rgb(0 0 0 / 0.5);
+  --sombra-hoja: 0 -2px 10px rgb(0 0 0 / 0.4), 0 -18px 60px rgb(0 0 0 / 0.6);
+}
+
+/* ---------------------------------------------------------------------------
+   LÁMINAS
+   `.vidrio` es la base; los modificadores cambian el peso. El filo especular
+   va como sombra interior en vez de como borde para que no sume un píxel a la
+   caja y para que pueda ser más claro arriba que abajo, que es como la luz cae
+   sobre un canto real.
+   ------------------------------------------------------------------------- */
+
+.vidrio {
+  background-color: var(--vidrio-regular);
+  -webkit-backdrop-filter: blur(var(--desenfoque-regular)) saturate(var(--saturacion));
+  backdrop-filter: blur(var(--desenfoque-regular)) saturate(var(--saturacion));
+  box-shadow: inset 0 1px 0 var(--vidrio-filo), inset 0 -1px 0 var(--vidrio-borde-bajo);
+}
+
+.vidrio-fino {
+  background-color: var(--vidrio-fino);
+  -webkit-backdrop-filter: blur(var(--desenfoque-fino)) saturate(var(--saturacion));
+  backdrop-filter: blur(var(--desenfoque-fino)) saturate(var(--saturacion));
+  box-shadow: inset 0 1px 0 var(--vidrio-filo);
+}
+
+.vidrio-grueso {
+  background-color: var(--vidrio-grueso);
+  -webkit-backdrop-filter: blur(var(--desenfoque-grueso)) saturate(var(--saturacion));
+  backdrop-filter: blur(var(--desenfoque-grueso)) saturate(var(--saturacion));
+  box-shadow: inset 0 1px 0 var(--vidrio-filo);
+}
+
+/* Cromática que flota sobre el contenido: además del material, la sombra que
+   la despega del documento y el borde de una hebra. */
+.vidrio-flotante {
+  border: 1px solid var(--vidrio-borde);
+  box-shadow: var(--sombra-flotante), inset 0 1px 0 var(--vidrio-filo);
+}
+
+/* El brillo que recorre el canto superior de una pastilla. Se dibuja como
+   pseudoelemento porque es un degradado, no un color plano: la luz entra por
+   una esquina y se apaga en la otra. */
+.filo-especular {
+  position: relative;
+  isolation: isolate;
+}
+.filo-especular::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    140deg,
+    var(--vidrio-filo) 0%,
+    rgb(255 255 255 / 0) 38%,
+    rgb(255 255 255 / 0) 62%,
+    var(--vidrio-borde) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   ORILLA DE DESPLAZAMIENTO
+   Debajo de una cabecera flotante no va un filete de 1 px: va una franja corta
+   donde el contenido se desvanece al pasar por detrás del vidrio. Es lo que
+   hace que la cabecera parezca estar POR ENCIMA y no PEGADA.
+   ------------------------------------------------------------------------- */
+.orilla-superior::after,
+.orilla-inferior::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18px;
+  pointer-events: none;
+}
+.orilla-superior::after {
+  top: 100%;
+  background: linear-gradient(to bottom, var(--c-fondo), transparent);
+  opacity: 0.85;
+}
+.orilla-inferior::before {
+  bottom: 100%;
+  background: linear-gradient(to top, var(--c-fondo), transparent);
+  opacity: 0.85;
+}
+
+/* ---------------------------------------------------------------------------
+   RESPUESTA AL TACTO
+   La realimentación va en el `pointerdown`, no en el `click`. Esperar a que el
+   dedo se levante para encender el botón es lo que hace que una interfaz se
+   note hecha de software.
+   ------------------------------------------------------------------------- */
+.pulsable {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform 140ms var(--muelle), background-color 140ms linear, opacity 140ms linear;
+}
+.pulsable:active {
+  transform: scale(0.965);
+}
+/* Los destinos grandes se hunden menos: el mismo 3.5 % en una tarjeta de media
+   pantalla se lee como un salto. */
+.pulsable-amplio:active {
+  transform: scale(0.99);
+}
+
+/* ---------------------------------------------------------------------------
+   TIPOGRAFÍA DE LA CAPA DE VIDRIO
+   Sobre una lámina translúcida el gris claro desaparece. El texto secundario
+   sube de contraste y de peso, y el tracking se abre una pizca: es la
+   «vibrancy» de iOS resuelta con lo que hay en la web.
+   ------------------------------------------------------------------------- */
+.sobre-vidrio {
+  color: var(--c-tinta);
+  text-shadow: 0 0 1px rgb(255 255 255 / 0.25);
+}
+:root[data-tema='oscuro'] .sobre-vidrio {
+  text-shadow: 0 0 1px rgb(0 0 0 / 0.4);
+}
+.sobre-vidrio-tenue {
+  color: var(--c-tinta-suave);
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+
+/* Título grande de iOS: el que ocupa la primera pantalla y se encoge hasta el
+   renglón de la barra al desplazarse. El tracking se cierra al crecer, como
+   manda la compensación óptica. */
+.titulo-grande {
+  font-size: clamp(1.75rem, 1.2rem + 2.2vw, 2.125rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+/* ---------------------------------------------------------------------------
+   HOJAS
+   Una hoja modal entra desde abajo, empuja el fondo hacia atrás y trae su
+   tirador. El material se MATERIALIZA —el desenfoque y la escala crecen a la
+   vez— en lugar de limitarse a aparecer.
+   ------------------------------------------------------------------------- */
+@keyframes hoja-entra {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes velo-entra {
+  from { opacity: 0; -webkit-backdrop-filter: blur(0px); backdrop-filter: blur(0px); }
+  to   { opacity: 1; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+}
+@keyframes material-entra {
+  from { opacity: 0; transform: scale(0.94); -webkit-backdrop-filter: blur(0px); backdrop-filter: blur(0px); }
+  to   { opacity: 1; transform: scale(1); -webkit-backdrop-filter: blur(var(--desenfoque-grueso)); backdrop-filter: blur(var(--desenfoque-grueso)); }
+}
+
+.hoja-entra { animation: hoja-entra var(--respuesta) var(--muelle) both; }
+.velo-vidrio { animation: velo-entra 240ms linear both; }
+.material-entra { animation: material-entra var(--respuesta-corta) var(--muelle) both; }
+
+/* El tirador de la hoja: dice «esto se arrastra» sin una sola palabra. */
+.tirador {
+  width: 36px;
+  height: 5px;
+  border-radius: var(--r-pastilla);
+  background: var(--c-tinta-tenue);
+  opacity: 0.4;
+}
+
+/* ---------------------------------------------------------------------------
+   BARRA DE PESTAÑAS
+   Flota sobre el contenido, no lo recorta. El indicador de la sección activa es
+   una pastilla que se DESPLAZA entre destinos —no aparece y desaparece—, que es
+   lo que deja ver de dónde viene el foco.
+   ------------------------------------------------------------------------- */
+.pestanas {
+  border-radius: var(--r-pastilla);
+}
+.pildora-activa {
+  transition: transform var(--respuesta) var(--muelle), width var(--respuesta) var(--muelle);
+  will-change: transform;
+}
+
+/* ---------------------------------------------------------------------------
+   LISTA DE AGRUPACIÓN (el `insetGrouped` de iOS)
+   Filas dentro de una tarjeta redondeada, separadas por un filete que empieza
+   donde empieza el texto, no donde empieza la tarjeta.
+   ------------------------------------------------------------------------- */
+.lista-agrupada > * + * {
+  border-top: 1px solid var(--c-borde);
+}
+.lista-agrupada-sangrada > * + * {
+  border-top: 1px solid var(--c-borde);
+  background-clip: padding-box;
+}
+
+/* ---------------------------------------------------------------------------
+   VIDRIO LÍQUIDO
+   El material de la generación nueva de Apple no es una lámina esmerilada: es
+   una lente. Deja pasar más del fondo (menos opacidad), lo curva en los cantos
+   —un filo claro arriba, uno oscuro abajo y una hebra de luz alrededor— y lleva
+   un brillo interior que baja desde el borde superior, que es donde la luz la
+   toca. Se usa en la cromática que FLOTA: la barra lateral, la de pestañas,
+   los menús y las pastillas sueltas. Nunca en lo que se lee largo.
+   ------------------------------------------------------------------------- */
+:root {
+  --liquido: rgb(252 251 248 / 0.52);
+  --liquido-denso: rgb(252 251 248 / 0.84);
+  --liquido-brillo: rgb(255 255 255 / 0.55);
+  --liquido-hebra: rgb(255 255 255 / 0.7);
+  --liquido-sombra-canto: rgb(20 20 15 / 0.08);
+  --liquido-lente: rgb(31 92 61 / 0.13);
+  --liquido-lente-hebra: rgb(31 92 61 / 0.22);
+  --sombra-menu: 0 1px 1px rgb(20 20 15 / 0.04), 0 8px 24px rgb(20 20 15 / 0.12), 0 24px 64px rgb(20 20 15 / 0.14);
+}
+:root[data-tema='oscuro'] {
+  --liquido: rgb(28 32 30 / 0.5);
+  --liquido-denso: rgb(30 34 32 / 0.84);
+  --liquido-brillo: rgb(255 255 255 / 0.12);
+  --liquido-hebra: rgb(255 255 255 / 0.16);
+  --liquido-sombra-canto: rgb(0 0 0 / 0.45);
+  --liquido-lente: rgb(124 199 154 / 0.16);
+  --liquido-lente-hebra: rgb(124 199 154 / 0.28);
+  --sombra-menu: 0 1px 1px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.45), 0 24px 64px rgb(0 0 0 / 0.5);
+}
+
+.liquido,
+.liquido-denso {
+  background-color: var(--liquido);
+  background-image: linear-gradient(
+    180deg,
+    var(--liquido-brillo) 0%,
+    rgb(255 255 255 / 0) 42%
+  );
+  -webkit-backdrop-filter: blur(18px) saturate(190%) brightness(1.04);
+  backdrop-filter: blur(18px) saturate(190%) brightness(1.04);
+  box-shadow:
+    inset 0 1px 0 var(--liquido-hebra),
+    inset 0 -1px 0 var(--liquido-sombra-canto),
+    inset 0 0 0 0.5px var(--liquido-hebra),
+    var(--sombra-flotante);
+}
+/* El denso es el de las superficies con texto corrido por detrás (menús,
+   paleta): la lente sigue, pero el fondo ya no compite con las letras. */
+.liquido-denso {
+  background-color: var(--liquido-denso);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  backdrop-filter: blur(32px) saturate(190%);
+  box-shadow:
+    inset 0 1px 0 var(--liquido-hebra),
+    inset 0 0 0 0.5px var(--liquido-hebra),
+    var(--sombra-menu);
+}
+/* Sin sombra exterior: la barra lateral va pegada a su margen y sólo necesita
+   el canto, no despegarse del documento. */
+.liquido-plano {
+  box-shadow:
+    inset 0 1px 0 var(--liquido-hebra),
+    inset 0 0 0 0.5px var(--liquido-hebra),
+    var(--sombra-chip);
+}
+
+/* La LENTE: el indicador de lo seleccionado. No es un relleno de color de
+   marca a plena tinta —eso tapa el vidrio— sino una gota tintada con su propio
+   canto, que se desliza de un destino al otro y crece un poco bajo el dedo. */
+.lente {
+  background-color: var(--liquido-lente);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.35), rgb(255 255 255 / 0) 60%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.55),
+    inset 0 0 0 0.5px var(--liquido-lente-hebra),
+    0 1px 3px rgb(20 20 15 / 0.08);
+}
+:root[data-tema='oscuro'] .lente {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0) 60%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    inset 0 0 0 0.5px var(--liquido-lente-hebra),
+    0 1px 3px rgb(0 0 0 / 0.3);
+}
+.lente-movil {
+  transition:
+    transform var(--respuesta) var(--muelle),
+    width var(--respuesta) var(--muelle),
+    height var(--respuesta) var(--muelle);
+  will-change: transform;
+}
+/* Bajo el dedo la lente se hincha: dice «te tengo» antes de soltar. */
+.lente-viva:has(:active) > .lente-movil {
+  scale: 1.06;
+}
+
+/* El pulgar de un control segmentado sobre superficie opaca: una pastilla
+   clara que se levanta del carril, como la de iOS. En oscuro sube de tono en
+   vez de bajar, porque el carril ya es oscuro. */
+.pulgar {
+  background-color: var(--c-superficie);
+  box-shadow: 0 1px 3px rgb(20 20 15 / 0.1), 0 0 0 0.5px rgb(20 20 15 / 0.05);
+}
+:root[data-tema='oscuro'] .pulgar {
+  background-color: #2c322f;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 1px 3px rgb(0 0 0 / 0.4);
+}
+
+/* Fila de un menú o de la barra lateral: al pasar por encima se enciende una
+   gota tenue, no una caja gris. */
+.fila-liquida {
+  transition: background-color 120ms linear, color 120ms linear, transform 140ms var(--muelle);
+}
+.fila-liquida:hover {
+  background-color: rgb(20 20 15 / 0.05);
+}
+:root[data-tema='oscuro'] .fila-liquida:hover {
+  background-color: rgb(255 255 255 / 0.06);
+}
+
+/* La fila con el foco del teclado se enciende entera; el anillo global de foco
+   dibujaba una caja dentro de la caja del menú. */
+.fila-menu:focus-visible {
+  outline: none;
+  background-color: var(--liquido-lente);
+}
+
+/* ---------------------------------------------------------------------------
+   LÁMINA — la tarjeta del documento hecha vidrio líquido
+   Las tarjetas eran papel plano con un filete. Ahora son una lente casi
+   opaca (se lee largo encima, así que el fondo apenas pasa): canto claro
+   arriba donde la toca la luz, hebra de un píxel alrededor y una sombra de
+   contacto corta. La tarjeta viva además se levanta bajo el cursor —la sombra
+   crece con la altura— y se hunde un poco al pulsar.
+   ------------------------------------------------------------------------- */
+:root {
+  --lamina: rgb(251 250 247 / 0.86);
+  --lamina-sombra: 0 1px 1px rgb(20 20 15 / 0.03), 0 2px 8px rgb(20 20 15 / 0.05);
+  --lamina-sombra-alta: 0 2px 4px rgb(20 20 15 / 0.05), 0 14px 36px rgb(20 20 15 / 0.11);
+}
+:root[data-tema='oscuro'] {
+  --lamina: rgb(22 26 24 / 0.84);
+  --lamina-sombra: 0 1px 1px rgb(0 0 0 / 0.3), 0 2px 10px rgb(0 0 0 / 0.28);
+  --lamina-sombra-alta: 0 2px 4px rgb(0 0 0 / 0.35), 0 16px 40px rgb(0 0 0 / 0.5);
+}
+.lamina {
+  background-color: var(--lamina);
+  background-image: linear-gradient(180deg, var(--liquido-brillo) 0%, rgb(255 255 255 / 0) 28%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+  box-shadow: inset 0 1px 0 var(--liquido-hebra), var(--lamina-sombra);
+}
+.lamina.tarjeta-viva {
+  transition:
+    transform var(--respuesta-corta) var(--muelle),
+    box-shadow var(--respuesta-corta) var(--muelle),
+    border-color 180ms linear;
+}
+@media (hover: hover) {
+  .lamina.tarjeta-viva:hover {
+    box-shadow: inset 0 1px 0 var(--liquido-hebra), var(--lamina-sombra-alta);
+  }
+}
+.lamina.tarjeta-viva:active {
+  transform: scale(0.99);
+  transition-duration: 100ms;
+}
+
+/* El fondo sobre el que flotan las láminas: dos luces muy tenues, fijas, del
+   verde de la marca y del azul de los datos. Sin ellas el vidrio no tiene
+   nada que refractar y se lee como plástico. Quietas: un fondo que se mueve a
+   pantalla completa es justo lo que el movimiento reducido pide evitar. */
+body {
+  background-image:
+    radial-gradient(60vmax 45vmax at 8% -10%, color-mix(in srgb, var(--c-marca) 9%, transparent), transparent 70%),
+    radial-gradient(55vmax 40vmax at 105% 110%, color-mix(in srgb, var(--c-dato) 6%, transparent), transparent 70%);
+  background-attachment: fixed;
+}
+
+/* ---------------------------------------------------------------------------
+   MENÚ DESPLEGABLE
+   Nace DEL BOTÓN que lo abre —su `transform-origin` es la esquina del
+   disparador— y vuelve a él al cerrarse, por el mismo camino. El desenfoque
+   crece con la escala: el vidrio se materializa, no se enciende.
+   ------------------------------------------------------------------------- */
+/* Sin `filter` en la animación: un filtro sobre la propia lámina anula su
+   `backdrop-filter`, y el menú entraba sin vidrio. */
+@keyframes menu-entra {
+  from { opacity: 0; transform: scale(0.82); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes menu-sale {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.9); }
+}
+.menu-entra { animation: menu-entra 320ms var(--muelle) both; }
+.menu-sale  { animation: menu-sale 160ms var(--muelle) both; pointer-events: none; }
+
+/* ---------------------------------------------------------------------------
+   VIDRIO DEL ATLAS
+   Los mandos del atlas 3D flotan sobre un lienzo que es SIEMPRE oscuro —el
+   cuerpo se ilumina sobre grafito—, así que su vidrio no sigue al tema de la
+   aplicación: es la lente oscura de Apple, con el filo claro arriba, la hebra
+   alrededor y el brillo que baja desde el canto. Tres pesos: la pastilla de un
+   mando, el desplegable que nace de ella (más grueso, porque tapa más y lleva
+   texto) y la lente que señala lo elegido dentro de un grupo.
+   ------------------------------------------------------------------------- */
+.liquido-atlas,
+.liquido-atlas-denso {
+  color: #f3f5f4;
+  background-color: rgb(18 22 24 / 0.46);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.12) 0%, rgb(255 255 255 / 0) 46%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    inset 0 -1px 0 rgb(0 0 0 / 0.35),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.16),
+    0 2px 6px rgb(0 0 0 / 0.28),
+    0 10px 28px rgb(0 0 0 / 0.32);
+}
+/* El desplegable lleva listas y texto corrido: más opaco y más desenfoque,
+   para que el cuerpo de detrás no compita con las letras. */
+.liquido-atlas-denso {
+  background-color: rgb(20 24 26 / 0.74);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.09) 0%, rgb(255 255 255 / 0) 30%);
+  -webkit-backdrop-filter: blur(36px) saturate(190%);
+  backdrop-filter: blur(36px) saturate(190%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.2),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.16),
+    0 1px 1px rgb(0 0 0 / 0.3),
+    0 12px 32px rgb(0 0 0 / 0.45),
+    0 28px 72px rgb(0 0 0 / 0.4);
+}
+/* Lo elegido dentro de un grupo: una gota clara con su propio canto. */
+.lente-atlas {
+  background-color: rgb(255 255 255 / 0.16);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0) 65%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.28), inset 0 0 0 0.5px rgb(255 255 255 / 0.22);
+}
+.fila-atlas {
+  transition: background-color 120ms linear, color 120ms linear;
+}
+.fila-atlas:hover { background-color: rgb(255 255 255 / 0.08); }
+.fila-atlas:focus-visible { outline: none; background-color: rgb(255 255 255 / 0.14); }
+.mando-atlas {
+  transition: background-color 120ms linear, transform 140ms var(--muelle);
+}
+.mando-atlas:hover { background-color: rgb(255 255 255 / 0.1); }
+.mando-atlas:active { transform: scale(0.95); transition-duration: 80ms; }
+.mando-atlas[aria-expanded='true'] { background-color: rgb(255 255 255 / 0.16); }
+
+/* Rótulos sobre el modelo: un punto de anclaje del color de la marca y una
+   etiqueta de vidrio. Los recoloca el motor en cada cuadro, fuera de React. */
+.rotulo-atlas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: 190px;
+  padding: 3px 9px 3px 16px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 540;
+  line-height: 1.35;
+  color: #f2f5f4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: rgb(14 18 20 / 0.62);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  margin-top: -11px;
+  margin-left: -5px;
+  will-change: transform;
+}
+.rotulo-atlas::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: var(--c, #fff);
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 0.35);
+}
+.rotulo-atlas[data-tipo='elegida'] {
+  background: #7cdbcc;
+  color: #0d0f11;
+  border-color: transparent;
+}
+
+/* El deslizador del despiece sobre vidrio oscuro. */
+.deslizador-atlas {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7cdbcc var(--p, 0%), rgb(255 255 255 / 0.18) var(--p, 0%));
+  outline: none;
+  cursor: pointer;
+}
+.deslizador-atlas::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.45), 0 0 0 0.5px rgb(0 0 0 / 0.2);
+}
+.deslizador-atlas::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.45);
+}
+
+/* ---------------------------------------------------------------------------
+   CAMPOS DESPLEGABLES
+   El `<select>` del sistema pinta su flecha a su manera y con otra altura en
+   cada navegador. Se dibuja una sola, con el chevrón doble de iOS, y el campo
+   deja sitio a la derecha para ella.
+   ------------------------------------------------------------------------- */
+.campo-select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%236d6c62' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 6.2L8 3.5l3 2.7M5 9.8l3 2.7 3-2.7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 14px 14px;
+  cursor: pointer;
+}
+:root[data-tema='oscuro'] .campo-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23a8aba5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 6.2L8 3.5l3 2.7M5 9.8l3 2.7 3-2.7'/%3E%3C/svg%3E");
+}
+.campo-select:hover { border-color: var(--c-tinta-tenue); }
+
+/* Los plegables (`<details>`): el chevrón gira al abrir y el contenido baja
+   con un fundido corto en vez de aparecer de golpe. */
+.plegable > summary::-webkit-details-marker { display: none; }
+.plegable > summary .chevron {
+  transition: transform var(--respuesta-corta) var(--muelle);
+}
+.plegable[open] > summary .chevron {
+  transform: rotate(90deg);
+}
+.plegable[open] > summary ~ * {
+  animation: plegable-abre var(--respuesta-corta) var(--muelle) both;
+}
+@keyframes plegable-abre {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   GRÁFICAS DE VIDRIO
+   Las formas las dibuja `GraficoVidrio.tsx`; aquí va lo que depende del tema
+   y de las preferencias: el filo, la sombra de contacto y la etiqueta flotante.
+   La sombra es la que dice que la barra se levanta del plano de la rejilla.
+   ------------------------------------------------------------------------- */
+
+.barra-vidrio {
+  filter: drop-shadow(0 3px 4px rgb(20 20 15 / 0.14)) drop-shadow(0 1px 1px rgb(20 20 15 / 0.08));
+}
+.barra-vidrio-filo {
+  stroke: rgb(255 255 255 / 0.6);
+  stroke-width: 0.8;
+}
+.barra-vidrio-arista {
+  stroke: rgb(255 255 255 / 0.7);
+  stroke-width: 0.6;
+}
+.anillo-vidrio-pared {
+  filter: drop-shadow(0 6px 8px rgb(20 20 15 / 0.18));
+}
+.anillo-vidrio .barra-vidrio-filo { stroke-width: 1; }
+.punto-vidrio {
+  filter: drop-shadow(0 1.5px 2px rgb(20 20 15 / 0.25));
+}
+/* La línea proyecta un resplandor de su color y una sombra corta debajo: se
+   lee como un hilo de vidrio suspendido sobre la rejilla, no como tinta. */
+.linea-vidrio .recharts-line-curve {
+  filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 3px 3px rgb(20 20 15 / 0.18));
+  stroke-linecap: round;
+}
+
+:root[data-tema='oscuro'] .barra-vidrio {
+  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.5)) drop-shadow(0 0 1px rgb(0 0 0 / 0.4));
+}
+:root[data-tema='oscuro'] .barra-vidrio-filo { stroke: rgb(255 255 255 / 0.26); }
+:root[data-tema='oscuro'] .barra-vidrio-arista { stroke: rgb(255 255 255 / 0.34); }
+:root[data-tema='oscuro'] .anillo-vidrio-pared { filter: drop-shadow(0 8px 10px rgb(0 0 0 / 0.55)); }
+:root[data-tema='oscuro'] .linea-vidrio .recharts-line-curve {
+  filter: drop-shadow(0 0 4px currentColor) drop-shadow(0 3px 4px rgb(0 0 0 / 0.5));
+}
+
+/* La etiqueta que aparece al pasar por una barra es una lámina pequeña de
+   vidrio: desenfoca la gráfica que tiene detrás en lugar de taparla. Recharts
+   escribe su estilo en línea, por eso el `!important`. */
+.recharts-default-tooltip {
+  background-color: var(--vidrio-regular) !important;
+  -webkit-backdrop-filter: blur(var(--desenfoque-fino)) saturate(var(--saturacion));
+  backdrop-filter: blur(var(--desenfoque-fino)) saturate(var(--saturacion));
+  border: 1px solid var(--vidrio-borde) !important;
+  border-radius: var(--r-control) !important;
+  box-shadow: inset 0 1px 0 var(--vidrio-filo), var(--sombra-flotante);
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  color: var(--c-tinta) !important;
+}
+.recharts-default-tooltip .recharts-tooltip-label {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--c-tinta) !important;
+}
+.recharts-tooltip-cursor { fill-opacity: 0.35; }
+
+/* ---------------------------------------------------------------------------
+   ACCESIBILIDAD — las tres salidas
+   ------------------------------------------------------------------------- */
+
+/* Sin transparencia: superficies opacas y borde definido. El desenfoque se
+   apaga del todo, no se atenúa: un desenfoque leve es lo peor de las dos. */
+@media (prefers-reduced-transparency: reduce) {
+  .vidrio, .vidrio-fino, .vidrio-grueso {
+    background-color: var(--c-superficie);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+  .vidrio-flotante { border-color: var(--c-borde); }
+  .liquido, .liquido-denso {
+    background-color: var(--c-superficie);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: inset 0 0 0 1px var(--c-borde), var(--sombra-chip);
+  }
+  .lente { background-color: var(--c-marca-suave); background-image: none; }
+  .liquido-atlas, .liquido-atlas-denso, .rotulo-atlas {
+    background-color: #15191b;
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.22);
+  }
+  .lamina {
+    background-color: var(--c-superficie);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .filo-especular::before { display: none; }
+  .orilla-superior::after, .orilla-inferior::before { display: none; }
+  .recharts-default-tooltip {
+    background-color: var(--c-superficie) !important;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-color: var(--c-borde) !important;
+  }
+}
+
+/* Contraste alto: fondo casi sólido y borde de tinta. */
+@media (prefers-contrast: more) {
+  .liquido-atlas, .liquido-atlas-denso {
+    background-color: #0d0f11;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.6);
+  }
+  .vidrio, .vidrio-fino, .vidrio-grueso {
+    background-color: var(--c-superficie);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .vidrio-flotante { border: 1px solid var(--c-borde-fuerte); }
+  .lamina {
+    background-color: var(--c-superficie);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-color: var(--c-borde-fuerte);
+  }
+  .liquido, .liquido-denso {
+    background-color: var(--c-superficie);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: inset 0 0 0 1px var(--c-borde-fuerte);
+  }
+  .lente { box-shadow: inset 0 0 0 1.5px var(--c-marca); }
+  .recharts-default-tooltip {
+    background-color: var(--c-superficie) !important;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-color: var(--c-borde-fuerte) !important;
+  }
+  .barra-vidrio-filo, .barra-vidrio-arista { stroke: var(--c-tinta); stroke-opacity: 0.55; }
+}
+
+/* Movimiento reducido: el desplazamiento se cambia por un fundido corto, no
+   por la nada. La respuesta al tacto sigue existiendo —es información—, sólo
+   deja de moverse. */
+@media (prefers-reduced-motion: reduce) {
+  .hoja-entra { animation: velo-entra 160ms linear both; }
+  .material-entra { animation: velo-entra 160ms linear both; }
+  .pildora-activa, .lente-movil { transition: none; }
+  .lente-viva:has(:active) > .lente-movil { scale: none; }
+  .menu-entra, .menu-sale { animation: velo-entra 140ms linear both; }
+  .plegable[open] > summary ~ * { animation: none; }
+  .pulsable:active, .pulsable-amplio:active { transform: none; opacity: 0.7; }
+  .lamina.tarjeta-viva:active { transform: none; }
+}
+
+/* El papel no tiene vidrio. */
+@media print {
+  body { background-image: none !important; }
+  .vidrio, .vidrio-fino, .vidrio-grueso, .vidrio-flotante, .liquido, .liquido-denso, .lamina {
+    background: #fff !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    border-color: #999 !important;
+  }
+  /* En papel las sombras se imprimen como manchas grises: fuera. */
+  .barra-vidrio, .anillo-vidrio-pared, .punto-vidrio, .linea-vidrio .recharts-line-curve { filter: none !important; }
+}

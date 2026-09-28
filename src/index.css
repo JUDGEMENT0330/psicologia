@@ -1,0 +1,522 @@
+@import "tailwindcss";
+
+/* Tipografía servida desde el propio paquete, no desde Google Fonts. En la
+   versión de escritorio es un requisito —la aplicación no hace ni una sola
+   petición de red— y en la web evita que cada visita al expediente de un
+   efectivo quede registrada en un servidor de terceros. */
+@import "@fontsource/archivo/latin-400.css";
+@import "@fontsource/archivo/latin-500.css";
+@import "@fontsource/archivo/latin-600.css";
+@import "@fontsource/archivo/latin-700.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
+@import "@fontsource/ibm-plex-mono/latin-600.css";
+
+/* La capa de material de la aplicación de iPhone: láminas translúcidas,
+   resortes y márgenes seguros. Va después de las fuentes y antes de todo lo
+   demás porque sólo define variables y clases de utilidad. */
+@import "./estilos/vidrio.css";
+
+/* ============================================================================
+   SISTEMA VISUAL — Suizo / tipográfico internacional
+   Cuadrícula estricta, contraste alto, reglas en lugar de sombras.
+   El color es información, no decoración.
+   ========================================================================== */
+
+:root {
+  /* --- superficie ---
+     El fondo no es gris neutro sino papel: una traza cálida por debajo del
+     blanco de las fichas, que es lo que separa un documento de una pantalla. */
+  --c-fondo: #f1efe9;
+  --c-superficie: #fbfaf7;
+  --c-superficie-alta: #e6e4dc;
+  --c-borde: #d3d0c6;
+  --c-borde-fuerte: #14140f;
+
+  /* --- tinta --- */
+  --c-tinta: #14140f;
+  --c-tinta-suave: #45443c;
+  --c-tinta-tenue: #6d6c62;
+
+  /* --- marca institucional --- */
+  --c-marca: #1f5c3d;
+  --c-marca-fuerte: #143f2a;
+  --c-marca-suave: #dde5dd;
+
+  /* --- señales --- */
+  --c-alerta: #b8241a;
+  --c-alerta-suave: #f6dedb;
+  --c-aviso: #8a5800;
+  --c-aviso-suave: #f6ecd8;
+  --c-exito: #1f5c3d;
+  --c-exito-suave: #dde9e2;
+  --c-dato: #1a44b8;
+  --c-dato-suave: #dee3f7;
+
+  /* --- superficies del atlas anatómico (estructura sin hallazgo) --- */
+  --c-estructura: #fbfbf9;
+  --c-estructura-borde: #9a9a92;
+
+  /* --- la piel del atlas ---
+     El cuerpo se dibujaba del color del papel, y un cuerpo del color del
+     papel es una silueta recortada: no dice qué es carne y qué es fondo.
+     Estos cuatro tonos son la piel del atlas —base, luz, sombra y borde—.
+     No imitan un tono de piel concreto: son los de una lámina impresa, para
+     que el mismo dibujo valga para cualquier paciente y siga leyéndose en la
+     fotocopia en blanco y negro que se archiva. */
+  --c-piel: #e7cbb2;
+  --c-piel-alta: #f4e2d3;
+  --c-piel-sombra: #c69d7f;
+  --c-piel-borde: #9d7a62;
+
+  /* --- portada ---
+     El panel editorial de la pantalla de acceso. En claro es el verde
+     institucional a plena tinta; en oscuro no puede serlo —un tercio de
+     pantalla de verde claro a las cinco de la mañana en la clínica es
+     agresivo—, así que allí baja a un verde de fondo y el color de marca
+     vuelve a ser sólo señal. */
+  --c-portada: #1f5c3d;
+  --c-portada-tinta: #f1efe9;
+  --c-portada-filete: rgb(241 239 233 / 0.55);
+  --c-portada-caja: rgb(241 239 233 / 0.25);
+
+  /* --- velo de los diálogos --- */
+  --c-velo: rgb(17 17 17 / 0.45);
+}
+
+:root[data-tema='oscuro'] {
+  /* No es el claro invertido: el oscuro es grafito, con la misma temperatura
+     fría del plomo de imprenta, y el blanco baja a marfil para que una jornada
+     entera de lectura de expedientes no queme la vista. */
+  --c-fondo: #0c0e0d;
+  --c-superficie: #141716;
+  --c-superficie-alta: #1d211f;
+  --c-borde: #2b302d;
+  --c-borde-fuerte: #e9e7e0;
+
+  --c-tinta: #e9e7e0;
+  --c-tinta-suave: #a8aba5;
+  --c-tinta-tenue: #7a7e79;
+
+  --c-marca: #58a97c;
+  --c-marca-fuerte: #7cc79a;
+  --c-marca-suave: #1a2b22;
+
+  --c-alerta: #ef6a5c;
+  --c-alerta-suave: #331a17;
+  --c-aviso: #e0a53a;
+  --c-aviso-suave: #2e2413;
+  --c-exito: #58a97c;
+  --c-exito-suave: #16261e;
+  --c-dato: #7ba4f7;
+  --c-dato-suave: #16203a;
+
+  --c-estructura: #2b322e;
+  --c-estructura-borde: #566159;
+
+  /* En pantalla oscura la piel no se aclara: se apaga. Un cuerpo color carne
+     a plena luz sobre fondo negro deslumbra en la consulta de madrugada. */
+  --c-piel: #5d493d;
+  --c-piel-alta: #745a49;
+  --c-piel-sombra: #3a2e26;
+  --c-piel-borde: #a5866c;
+
+  --c-portada: #112a1e;
+  --c-portada-tinta: #dfe6e0;
+  --c-portada-filete: rgb(223 230 224 / 0.4);
+  --c-portada-caja: rgb(223 230 224 / 0.14);
+
+  --c-velo: rgb(0 0 0 / 0.62);
+}
+
+@theme {
+  --color-fondo: var(--c-fondo);
+  --color-superficie: var(--c-superficie);
+  --color-superficie-alta: var(--c-superficie-alta);
+  --color-borde: var(--c-borde);
+  --color-borde-fuerte: var(--c-borde-fuerte);
+
+  --color-tinta: var(--c-tinta);
+  --color-tinta-suave: var(--c-tinta-suave);
+  --color-tinta-tenue: var(--c-tinta-tenue);
+
+  --color-marca: var(--c-marca);
+  --color-marca-fuerte: var(--c-marca-fuerte);
+  --color-marca-suave: var(--c-marca-suave);
+
+  --color-alerta: var(--c-alerta);
+  --color-alerta-suave: var(--c-alerta-suave);
+  --color-aviso: var(--c-aviso);
+  --color-aviso-suave: var(--c-aviso-suave);
+  --color-exito: var(--c-exito);
+  --color-exito-suave: var(--c-exito-suave);
+  --color-dato: var(--c-dato);
+  --color-dato-suave: var(--c-dato-suave);
+
+  --color-estructura: var(--c-estructura);
+  --color-estructura-borde: var(--c-estructura-borde);
+  --color-velo: var(--c-velo);
+
+  --color-portada: var(--c-portada);
+  --color-portada-tinta: var(--c-portada-tinta);
+  --color-portada-filete: var(--c-portada-filete);
+  --color-portada-caja: var(--c-portada-caja);
+
+  /* Archivo: grotesca de la escuela suiza, con anchos y pesos amplios.
+     IBM Plex Mono: cifras tabulares para códigos, índices y fechas. */
+  --font-sans: 'Archivo', 'Helvetica Neue', Helvetica, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* escala espacial de 4 px, sin valores intermedios */
+  --radius-nada: 0px;
+  --radius-minimo: 2px;
+
+  /* Los escalones de esquina de iOS, para que una tarjeta se escriba
+     `rounded-tarjeta` y no con un número suelto que nadie sabe de dónde sale.
+     Los valores viven en `estilos/vidrio.css`, que es donde está el material. */
+  --radius-chip: var(--r-chip);
+  --radius-control: var(--r-control);
+  --radius-tarjeta: var(--r-tarjeta);
+  --radius-hoja: var(--r-hoja);
+  --radius-pastilla: var(--r-pastilla);
+}
+
+/* Escala tipográfica modular (razón 1.25) y fluida sólo en los dos escalones
+   de titular: el cuerpo del expediente no cambia de tamaño con la ventana
+   —una cifra clínica se lee igual en el portátil de la clínica que en el
+   monitor de la S-4—, pero un titular fijo de 48 px parte la retícula en un
+   teléfono. */
+:root {
+  --t-titular: clamp(1.875rem, 1.25rem + 2.4vw, 2.75rem);
+  --t-titular-mayor: clamp(2.75rem, 1.6rem + 5.2vw, 4.5rem);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background-color: var(--c-fondo);
+  color: var(--c-tinta);
+  font-family: var(--font-sans);
+  font-size: 16px; /* evita el zoom de iOS al enfocar campos */
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Comillas y guiones colgando fuera de la caja: la columna de texto queda
+     ópticamente recta, no matemáticamente recta. */
+  hanging-punctuation: first last;
+}
+
+/* ---------------------------------------------------------------- grano ---
+   Un velo de ruido sobre toda la interfaz, al 3 %. No es adorno: es lo que
+   impide que las superficies planas se lean como plástico y lo que emparenta
+   la pantalla con el formulario en papel que la clínica sigue archivando. Se
+   genera con una turbulencia SVG —ningún archivo que descargar, requisito de
+   la versión de escritorio— y desaparece al imprimir. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23r)'/%3E%3C/svg%3E");
+}
+:root[data-tema='oscuro'] body::after {
+  opacity: 0.055;
+}
+
+/* La cuadrícula suiza vive de la alineación: cifras de ancho fijo en todas
+   las tablas e índices clínicos. */
+.cifras {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: -0.01em;
+}
+
+/* Rótulo de sección: versalita ancha, la firma tipográfica del estilo. */
+.rotulo {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Titular: tracking negativo y peso alto, al modo Neue Haas. El tracking se
+   cierra a medida que sube el cuerpo —compensación óptica: lo que es correcto
+   a 16 px queda suelto a 44 px— y el reparto por líneas se equilibra en vez de
+   dejar una palabra huérfana en la última. */
+.titular {
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.titular-pagina {
+  font-size: var(--t-titular);
+}
+
+.titular-mayor {
+  font-size: var(--t-titular-mayor);
+  letter-spacing: -0.045em;
+}
+
+/* Filete doble: la regla gruesa con su acompañante fina debajo. Es la firma
+   del encabezado de sección en la tipografía de imprenta, y aquí distingue de
+   un vistazo el título de la página de cualquier otro borde de la retícula. */
+.regla-doble {
+  border-top: 2px solid var(--c-borde-fuerte);
+  border-bottom: 1px solid var(--c-borde);
+  height: 4px;
+  box-sizing: content-box;
+}
+
+/* Folio: el renglón de servicio del documento —sección, fecha, unidad—, en
+   versalita mínima y cifras tabulares, como el encabezado corrido de un
+   expediente impreso. */
+.folio {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-tinta-tenue);
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Tecla: se dibuja como tecla, no como etiqueta. */
+.tecla {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1;
+  padding: 4px 5px;
+  border: 1px solid var(--c-borde);
+  border-bottom-width: 2px;
+  color: var(--c-tinta-tenue);
+  background: var(--c-superficie-alta);
+}
+
+::selection {
+  background: var(--c-marca);
+  color: var(--c-fondo);
+}
+
+/* El anillo de foco es la única «sombra» admitida: el teclado tiene que poder
+   recorrer toda la ficha clínica sin perder de vista dónde está. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--c-marca);
+  outline-offset: 2px;
+}
+
+/* Enlace de salto: sólo aparece al tabular desde el inicio del documento. */
+.salto {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 70;
+  transform: translateY(-120%);
+  transition: transform 160ms ease;
+  background: var(--c-marca);
+  color: var(--c-fondo);
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.salto:focus {
+  transform: none;
+}
+
+/* Cabecera de tabla fija: en listados de 571 efectivos, perder los rótulos al
+   desplazarse obliga a volver arriba para leer una columna. */
+.tabla-fija thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--c-superficie-alta);
+  box-shadow: inset 0 -1px 0 var(--c-borde);
+}
+
+/* Contenedor con desplazamiento horizontal anunciado como región navegable. */
+.cinta {
+  overscroll-behavior-x: contain;
+}
+
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--c-fondo); }
+::-webkit-scrollbar-thumb { background: var(--c-borde); border: 3px solid var(--c-fondo); }
+::-webkit-scrollbar-thumb:hover { background: var(--c-tinta-tenue); }
+
+/* ============================================================================
+   MOVIMIENTO
+   El rigor suizo no obliga a la inmovilidad: la entrada escalonada guía la
+   lectura en el orden de la retícula y el resto son respuestas a la acción.
+   Todo se anula con prefers-reduced-motion.
+   ========================================================================== */
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes barrer {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes latir {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+
+@keyframes entrar-lateral {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes velar {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* El esqueleto recorre la casilla vacía: indica «hay algo llegando aquí»
+   sin desplazar el contenido cuando llega, a diferencia de un indicador
+   centrado que sustituye toda la página. */
+@keyframes recorrer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+.aparece {
+  animation: aparecer 460ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+/* escalonado por posición en la retícula */
+.escalonar > * {
+  animation: aparecer 460ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.escalonar > *:nth-child(1) { animation-delay: 0ms; }
+.escalonar > *:nth-child(2) { animation-delay: 60ms; }
+.escalonar > *:nth-child(3) { animation-delay: 120ms; }
+.escalonar > *:nth-child(4) { animation-delay: 180ms; }
+.escalonar > *:nth-child(5) { animation-delay: 240ms; }
+.escalonar > *:nth-child(6) { animation-delay: 300ms; }
+.escalonar > *:nth-child(n + 7) { animation-delay: 340ms; }
+
+/* la regla del encabezado se traza de izquierda a derecha */
+.regla-viva {
+  transform-origin: left;
+  animation: barrer 620ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.late { animation: latir 1.6s ease-in-out infinite; }
+
+.aviso-entra { animation: entrar-lateral 260ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.velo-entra  { animation: velar 160ms ease both; }
+
+.esqueleto {
+  background-image: linear-gradient(
+    90deg,
+    var(--c-superficie-alta) 25%,
+    var(--c-borde) 50%,
+    var(--c-superficie-alta) 75%
+  );
+  background-size: 200% 100%;
+  animation: recorrer 1.4s linear infinite;
+}
+
+/* Estructura del atlas: el trazo responde, el color del hallazgo no cambia. */
+.pieza {
+  transition: transform 140ms ease;
+}
+.pieza:hover { transform: translateY(-2px); }
+
+/* Tarjeta viva: el borde reacciona, no la sombra. */
+.tarjeta-viva {
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+.tarjeta-viva:hover {
+  border-color: var(--c-marca);
+  transform: translateY(-2px);
+}
+
+/* Fila de tabla: marca lateral al pasar el cursor, sin mover el texto. La
+   marca cuelga de la PRIMERA CELDA, no de la fila: un `::before` sobre un
+   `<tr>` lo trata Chromium como una celda anónima más, y toda la fila se
+   corría una columna a la derecha de su encabezado. */
+.fila-viva > :first-child { position: relative; }
+.fila-viva > :first-child::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: var(--c-marca);
+  transform: scaleY(0);
+  transition: transform 160ms ease;
+}
+.fila-viva:hover > :first-child::before { transform: scaleY(1); }
+
+/* La paleta de mando cae desde arriba, como una regla que se posa sobre la
+   página. Recorrido corto y salida sin rebote: se abre y se cierra decenas de
+   veces por jornada. */
+@keyframes descolgar {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: none; }
+}
+.paleta-entra { animation: descolgar 180ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+
+/* Sección activa de la barra lateral: la banda se despliega desde el borde
+   izquierdo en lugar de encenderse de golpe. */
+@keyframes desplegar-banda {
+  from { transform: scaleY(0.2); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+.banda-activa {
+  transform-origin: center;
+  animation: desplegar-banda 220ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .tarjeta-viva:hover,
+  .pieza:hover { transform: none; }
+  .esqueleto { animation: none; background: var(--c-superficie-alta); }
+}
+
+/* ---------------------------------------------------------------
+   Impresión de la hoja de exploración en formato de papel oficial
+   --------------------------------------------------------------- */
+@media print {
+  @page { size: letter portrait; margin: 12mm; }
+
+  body { background: #fff !important; color: #111 !important; }
+
+  /* el grano es para la pantalla; sobre papel sólo ensucia el tóner */
+  body::after { display: none !important; }
+
+  /* el papel no tiene navegación */
+  aside, nav, .salto { display: none !important; }
+
+  main { padding: 0 !important; }
+
+  /* si hay una ficha en pantalla, sólo se imprime la ficha */
+  body:has(.ficha-imprimible) main > div > *:not(:has(.ficha-imprimible)) { display: none !important; }
+
+  .ficha-imprimible {
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    background: #fff !important;
+    break-inside: avoid;
+  }
+
+  .print\:hidden { display: none !important; }
+}

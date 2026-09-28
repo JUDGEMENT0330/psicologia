@@ -1,0 +1,248 @@
+[
+ {
+  "clave": "depresion",
+  "nombre": "Síntomas depresivos",
+  "color": "#1a44b8",
+  "orden": 10,
+  "regiones": [
+   7,
+   8,
+   3,
+   4,
+   31,
+   32,
+   25,
+   26,
+   41,
+   42,
+   37,
+   38,
+   29,
+   30
+  ],
+  "descripcion": "Tristeza, anhedonia, pesimismo, fatiga y alteraciones del sueño y del apetito.",
+  "explicacion": "Hipoactividad de la corteza prefrontal dorsolateral (giro frontal medio y superior), hiperactividad de la corteza cingulada anterior subgenual y la corteza orbitofrontal medial, reactividad aumentada de la amígdala y menor volumen hipocampal; la ínsula participa en la vivencia corporal del ánimo."
+ },
+ {
+  "clave": "ansiedad",
+  "nombre": "Ansiedad",
+  "color": "#8a5800",
+  "orden": 20,
+  "regiones": [
+   41,
+   42,
+   29,
+   30,
+   31,
+   32,
+   37,
+   38,
+   39,
+   40,
+   25,
+   26
+  ],
+  "descripcion": "Síntomas somáticos y cognitivos de ansiedad: tensión, temor, activación autonómica.",
+  "explicacion": "Circuito del miedo: amígdala (detección de amenaza), ínsula (conciencia de la activación corporal), cingulado anterior (evaluación del conflicto), hipocampo y parahipocampo (contexto) con menor regulación desde la corteza prefrontal ventromedial."
+ },
+ {
+  "clave": "baja_autoestima",
+  "nombre": "Baja autoestima",
+  "color": "#6d4bb8",
+  "orden": 30,
+  "regiones": [
+   23,
+   24,
+   35,
+   36,
+   67,
+   68,
+   31,
+   32
+  ],
+  "descripcion": "Valoración global negativa de uno mismo.",
+  "explicacion": "Red de autorreferencia (red neuronal por defecto): corteza prefrontal medial (giro frontal superior medial), cingulado posterior y precúneo, con el cingulado anterior en la sensibilidad al rechazo."
+ },
+ {
+  "clave": "ideacion_suicida",
+  "nombre": "Ideación suicida",
+  "color": "#b8241a",
+  "orden": 5,
+  "regiones": [
+   25,
+   26,
+   27,
+   28,
+   15,
+   16,
+   31,
+   32,
+   7,
+   8
+  ],
+  "descripcion": "Pensamientos o deseos de morir referidos por el evaluado. Requiere valoración de riesgo inmediata.",
+  "explicacion": "Alteraciones descritas en la corteza orbitofrontal y ventromedial (giro recto, orbitofrontal inferior), el cingulado anterior y la prefrontal dorsolateral: toma de decisiones, control inhibitorio y dolor psicológico."
+ },
+ {
+  "clave": "somatizacion",
+  "nombre": "Preocupación somática (Hs)",
+  "color": "#b0521f",
+  "orden": 40,
+  "regiones": [
+   29,
+   30,
+   57,
+   58,
+   31,
+   32,
+   33,
+   34
+  ],
+  "descripcion": "Preocupación excesiva por el funcionamiento corporal y la salud.",
+  "explicacion": "Interocepción amplificada: ínsula, corteza somatosensorial (poscentral) y cingulado anterior y medio."
+ },
+ {
+  "clave": "conversion",
+  "nombre": "Reacciones de conversión (Hy)",
+  "color": "#a0336e",
+  "orden": 50,
+  "regiones": [
+   19,
+   20,
+   1,
+   2,
+   63,
+   64,
+   31,
+   32
+  ],
+  "descripcion": "Tendencia a expresar el malestar mediante síntomas físicos y a negar conflictos.",
+  "explicacion": "Síntomas funcionales vinculados al área motora suplementaria y precentral, la unión temporoparietal (supramarginal) y el cingulado anterior."
+ },
+ {
+  "clave": "impulsividad",
+  "nombre": "Impulsividad y conflicto con normas (Pd)",
+  "color": "#c2410c",
+  "orden": 60,
+  "regiones": [
+   15,
+   16,
+   9,
+   10,
+   25,
+   26,
+   41,
+   42,
+   71,
+   72,
+   73,
+   74
+  ],
+  "descripcion": "Desajuste social, impulsividad, conflicto con la autoridad y las normas.",
+  "explicacion": "Control inhibitorio y valoración de consecuencias: corteza orbitofrontal (inferior, media y medial), amígdala y estriado (caudado y putamen)."
+ },
+ {
+  "clave": "paranoia",
+  "nombre": "Suspicacia (Pa)",
+  "color": "#7c2d12",
+  "orden": 70,
+  "regiones": [
+   41,
+   42,
+   81,
+   82,
+   23,
+   24,
+   65,
+   66
+  ],
+  "descripcion": "Desconfianza, sensibilidad interpersonal, ideas de referencia o perjuicio.",
+  "explicacion": "Detección de amenaza social (amígdala) y teoría de la mente: temporal superior, prefrontal medial y giro angular (unión temporoparietal)."
+ },
+ {
+  "clave": "ansiedad_obsesiva",
+  "nombre": "Ansiedad obsesiva (Pt)",
+  "color": "#a16207",
+  "orden": 80,
+  "regiones": [
+   5,
+   6,
+   9,
+   10,
+   71,
+   72,
+   31,
+   32,
+   77,
+   78
+  ],
+  "descripcion": "Tensión, duda, rumiación, perfeccionismo y sentimientos de insuficiencia.",
+  "explicacion": "Circuito córtico-estriado-tálamo-cortical: orbitofrontal, núcleo caudado, cingulado anterior y tálamo."
+ },
+ {
+  "clave": "alteracion_pensamiento",
+  "nombre": "Alteración del pensamiento (Sc)",
+  "color": "#4c1d95",
+  "orden": 90,
+  "regiones": [
+   7,
+   8,
+   81,
+   82,
+   79,
+   80,
+   37,
+   38,
+   77,
+   78
+  ],
+  "descripcion": "Aislamiento, experiencias inusuales, pensamiento poco convencional.",
+  "explicacion": "Prefrontal dorsolateral, temporal superior y giro de Heschl (percepción auditiva), hipocampo y tálamo."
+ },
+ {
+  "clave": "hipomania",
+  "nombre": "Activación hipomaníaca (Ma)",
+  "color": "#be185d",
+  "orden": 100,
+  "regiones": [
+   15,
+   16,
+   41,
+   42,
+   73,
+   74,
+   75,
+   76,
+   31,
+   32
+  ],
+  "descripcion": "Energía y ánimo elevados, aceleración, impulsividad.",
+  "explicacion": "Hiperactividad del circuito de recompensa y regulación emocional: orbitofrontal inferior, amígdala, putamen, pálido y cingulado anterior."
+ },
+ {
+  "clave": "consumo_alcohol",
+  "nombre": "Consumo problemático de alcohol",
+  "color": "#0f766e",
+  "orden": 110,
+  "regiones": [
+   71,
+   72,
+   73,
+   74,
+   25,
+   26,
+   29,
+   30,
+   109,
+   110,
+   111,
+   112,
+   113,
+   114,
+   115,
+   116
+  ],
+  "descripcion": "Refiere abuso de bebidas alcohólicas.",
+  "explicacion": "Estriado (caudado y putamen, vía de recompensa), orbitofrontal medial, ínsula (deseo de consumo) y vermis cerebeloso, sensible al daño por alcohol."
+ }
+]
