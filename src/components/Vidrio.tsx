@@ -80,12 +80,21 @@ export function Hoja({
       if (!p) return cerrar.current()
       const alto = p.offsetHeight || window.innerHeight
       muelle.current?.detener()
-      muelle.current = resorte(actual(p), alto, {
+      // Apunta un poco más allá del borde y avisa al cruzarlo: la cola de un
+      // muelle crítico tarda ~300 ms en asentarse el último píxel, y mientras
+      // tanto una hoja ya invisible seguía tapando la pantalla.
+      let hecho = false
+      muelle.current = resorte(actual(p), alto + 40, {
         respuesta: 0.34,
         amortiguacion: 1,
         velocidad,
-        alMover: pintar,
-        alParar: () => cerrar.current(),
+        alMover: (y) => {
+          pintar(y)
+          if (hecho || y < alto) return
+          hecho = true
+          muelle.current?.detener()
+          cerrar.current()
+        },
       })
     },
     [pintar],
