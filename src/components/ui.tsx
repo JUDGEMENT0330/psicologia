@@ -1,9 +1,11 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, type LinkProps } from 'react-router-dom'
 import type { ReactNode, InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes, ButtonHTMLAttributes } from 'react'
 import type { Nivel } from '../lib/tipos'
 import { NOMBRE_NIVEL } from '../lib/formato'
+import { bloquearDesplazamiento } from '../lib/desplazamiento'
+import { Rastro, gomaElastica, proyectar, resorte, type Muelle } from '../lib/resorte'
 
 /* ============================================================================
    Componentes base.
@@ -411,11 +413,61 @@ export function Modal({
   ancho?: string
 }) {
   const caja = useRef<HTMLDivElement>(null)
+  const velo = useRef<HTMLDivElement>(null)
   const idTitulo = useId()
 
   // La última versión de la función de cierre, sin volver a montar el efecto.
   const cerrar = useRef(onCerrar)
   cerrar.current = onCerrar
+
+  // En el teléfono el diálogo es una hoja: dibuja el tirador, así que TIENE que
+  // arrastrarse, subir desde abajo y salir por donde entró —lo mismo que la
+  // `Hoja` de `Vidrio.tsx`, que se ve igual—. En el escritorio es una tarjeta
+  // que se materializa en el centro y se cierra al instante.
+  const [telefono] = useState(() => typeof window !== 'undefined' && !!window.matchMedia?.('(max-width: 639px)').matches)
+  const muelle = useRef<Muelle | null>(null)
+  const rastro = useRef(new Rastro())
+
+  /** Pinta el desplazamiento sin pasar por React: corre a 60 fps. */
+  const pintar = useCallback((y: number) => {
+    const c = caja.current
+    if (!c) return
+    c.style.transform = `translate3d(0, ${y}px, 0)`
+    // El velo se aclara conforme la hoja baja: dice que soltar ahí cierra.
+    if (velo.current) velo.current.style.opacity = String(Math.max(0, 1 - y / (c.offsetHeight || 1)))
+  }, [])
+
+  // Entrada: sube desde abajo con muelle crítico. Sin rebote: no vino de un gesto.
+  useLayoutEffect(() => {
+    const c = caja.current
+    if (!telefono || !c) return
+    const alto = c.offsetHeight || window.innerHeight
+    pintar(alto)
+    muelle.current = resorte(alto, 0, { respuesta: 0.42, amortiguacion: 1, alMover: pintar })
+    return () => muelle.current?.detener()
+  }, [telefono, pintar])
+
+  /** Cierra. En el teléfono baja heredando la velocidad que traía y avisa al llegar. */
+  const salir = useRef((velocidad = 0) => {
+    const c = caja.current
+    if (!telefono || !c) return cerrar.current()
+    const alto = c.offsetHeight || window.innerHeight
+    muelle.current?.detener()
+    // Apunta un poco más allá del borde y avisa al cruzarlo: la cola de un
+    // muelle crítico tarda ~300 ms en asentarse el último píxel, y mientras
+    // tanto una hoja ya invisible seguía tapando la pantalla.
+    let hecho = false
+    muelle.current = resorte(posicionActual(c), alto + 40, {
+      respuesta: 0.34, amortiguacion: 1, velocidad,
+      alMover: (y) => {
+        pintar(y)
+        if (hecho || y < alto) return
+        hecho = true
+        muelle.current?.detener()
+        cerrar.current()
+      },
+    })
+  })
 
   // Un arrastre para seleccionar texto que empieza dentro del diálogo y termina
   // fuera dispara un `click` en el velo. Sin esto, seleccionar el motivo de una
@@ -425,8 +477,7 @@ export function Modal({
 
   useEffect(() => {
     const previo = document.activeElement as HTMLElement | null
-    const desbordeOriginal = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const liberar = bloquearDesplazamiento()
 
     // El foco entra por el primer control del cuerpo, no por el aspa de cerrar:
     // el diálogo se abre para escribir, no para salir de él. Se descartan los
@@ -440,7 +491,9 @@ export function Modal({
     const escribible = candidatos.find(
       (el) => el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement,
     )
-    ;(escribible ?? candidatos[0] ?? caja.current)?.focus()
+    // Sin desplazar: la hoja todavía está subiendo y el navegador movería el
+    // documento entero para «mostrar» un campo que viene de camino.
+    ;(escribible ?? candidatos[0] ?? caja.current)?.focus({ preventScroll: true })
 
     function alPulsar(e: KeyboardEvent) {
       // Si hay otra capa por encima —la paleta de mando abierta con Ctrl+K sobre
@@ -450,7 +503,7 @@ export function Modal({
 
       if (e.key === 'Escape') {
         e.stopPropagation()
-        cerrar.current()
+        salir.current()
         return
       }
       if (e.key !== 'Tab' || !caja.current) return
@@ -470,24 +523,74 @@ export function Modal({
     document.addEventListener('keydown', alPulsar, true)
     return () => {
       document.removeEventListener('keydown', alPulsar, true)
-      document.body.style.overflow = desbordeOriginal
+      liberar()
       previo?.focus?.()
     }
   }, [])
+
+  /* --------------------------------------------- arrastre (sólo teléfono) -- */
+  const arrastrando = useRef(false)
+  const origen = useRef(0)
+  const partida = useRef(0)
+
+  function alBajar(e: React.PointerEvent) {
+    const c = caja.current
+    // El aspa es un botón, no un asa: tocarla cierra, no arrastra.
+    if (!telefono || !c || (e.target as HTMLElement).closest('button')) return
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+    // Agarrar algo que se mueve lo para EN SECO donde está: es la interrupción.
+    muelle.current?.detener()
+    arrastrando.current = true
+    origen.current = e.clientY
+    partida.current = posicionActual(c)
+    rastro.current.limpiar()
+    rastro.current.anotar(e.clientY)
+  }
+
+  function alMover(e: React.PointerEvent) {
+    const c = caja.current
+    if (!arrastrando.current || !c) return
+    rastro.current.anotar(e.clientY)
+    const bruto = partida.current + (e.clientY - origen.current)
+    // Hacia abajo, 1 a 1; hacia arriba no hay a dónde ir: goma elástica.
+    pintar(bruto >= 0 ? bruto : -gomaElastica(-bruto, c.offsetHeight || window.innerHeight))
+  }
+
+  function alSoltar() {
+    const c = caja.current
+    if (!arrastrando.current || !c) return
+    arrastrando.current = false
+    const alto = c.offsetHeight || window.innerHeight
+    const y = posicionActual(c)
+    const v = rastro.current.velocidad()
+    // Se decide por A DÓNDE IBA, no por dónde se soltó: un golpe corto cierra.
+    if (y + proyectar(v) > alto * 0.4 || v > 520) {
+      salir.current(v)
+    } else {
+      muelle.current = resorte(y, 0, {
+        respuesta: 0.34, amortiguacion: Math.abs(v) > 200 ? 0.8 : 1, velocidad: v, alMover: pintar,
+      })
+    }
+  }
 
   // Al `body`, no donde se declara: casi todos los diálogos viven dentro de una
   // tarjeta `.lamina`, y su `backdrop-filter` convierte a la tarjeta en el
   // bloque contenedor de todo lo `fixed` que lleve dentro. El velo dejaba de
   // cubrir la pantalla y el diálogo quedaba recortado a la altura de la tarjeta.
   return createPortal(
-    <div
-      className="velo-entra fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-velo p-0 backdrop-blur-[6px] sm:items-start sm:p-8 print:hidden"
-      onMouseDown={(e) => { pulsadoEnVelo.current = e.target === e.currentTarget }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget && pulsadoEnVelo.current) onCerrar()
-        pulsadoEnVelo.current = false
-      }}
-    >
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-start sm:p-8 print:hidden">
+      {/* El velo va aparte del diálogo: así puede aclararse mientras la hoja
+          baja sin que el diálogo se aclare con él. */}
+      <div
+        ref={velo}
+        aria-hidden
+        className="velo-entra absolute inset-0 bg-velo backdrop-blur-[6px]"
+        onMouseDown={() => { pulsadoEnVelo.current = true }}
+        onClick={() => {
+          if (pulsadoEnVelo.current) salir.current()
+          pulsadoEnVelo.current = false
+        }}
+      />
       <div
         ref={caja}
         data-capa
@@ -495,12 +598,25 @@ export function Modal({
         aria-modal="true"
         aria-labelledby={idTitulo}
         tabIndex={-1}
-        /* En el teléfono es una hoja que sube y se apoya en el borde inferior;
-           en el escritorio, una tarjeta que se materializa en el centro. El
-           mismo diálogo, la forma que toca en cada mano. */
-        className={`material-entra vidrio-flotante w-full ${ancho} overflow-hidden rounded-t-hoja border border-borde bg-superficie outline-none sm:rounded-hoja`}
+        onMouseDown={() => { pulsadoEnVelo.current = false }}
+        /* Alto acotado a la pantalla visible (`dvh`: descuenta las barras del
+           navegador del teléfono) y desplazamiento DENTRO del cuerpo. Antes
+           desplazaba el velo, y con la hoja apoyada abajo un formulario más
+           alto que la pantalla —capturar 71 ítems, una convocatoria con su
+           lista de personas— crecía hacia arriba por fuera del velo: el título
+           y el aspa de cerrar quedaban donde ningún desplazamiento llegaba. */
+        className={`${telefono ? '' : 'material-entra'} vidrio-flotante relative flex max-h-[94dvh] w-full ${ancho} flex-col overflow-hidden rounded-t-hoja border border-borde bg-superficie outline-none sm:max-h-[calc(100dvh-4rem)] sm:rounded-hoja`}
+        style={telefono ? { willChange: 'transform' } : undefined}
       >
-        <div className="vidrio sticky top-0 z-10 px-4 pt-2 pb-0">
+        {/* La cabecera es el asa. `touch-action: none` es obligatorio: sin él,
+            el navegador se queda el gesto vertical y el arrastre no llega. */}
+        <div
+          onPointerDown={alBajar}
+          onPointerMove={alMover}
+          onPointerUp={alSoltar}
+          onPointerCancel={alSoltar}
+          className="vidrio shrink-0 touch-none px-4 pt-2 pb-0 select-none sm:touch-auto sm:select-auto"
+        >
           {/* El tirador dice «esto se arrastra» en el teléfono; en el
               escritorio sobra y no se dibuja. */}
           <div className="mx-auto mb-2 tirador sm:hidden" aria-hidden />
@@ -508,7 +624,7 @@ export function Modal({
             <h3 id={idTitulo} className="rotulo text-tinta">{titulo}</h3>
             <button
               type="button"
-              onClick={onCerrar}
+              onClick={() => salir.current()}
               className="pulsable -mr-1 flex h-9 w-9 items-center justify-center rounded-pastilla bg-superficie-alta text-tinta-tenue hover:text-tinta"
               aria-label="Cerrar"
             >
@@ -518,11 +634,17 @@ export function Modal({
             </button>
           </div>
         </div>
-        <div data-cuerpo className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{children}</div>
+        <div data-cuerpo className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{children}</div>
       </div>
     </div>,
     document.body,
   )
+}
+
+/** El desplazamiento pintado ahora mismo, leído del elemento: interrumpir desde
+ *  el valor de destino en vez del que se ve produce un salto. */
+function posicionActual(el: HTMLElement): number {
+  return new DOMMatrixReadOnly(getComputedStyle(el).transform).m42 || 0
 }
 
 /* --------------------------------------------------------------- avisos en línea --- */

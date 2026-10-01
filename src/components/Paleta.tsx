@@ -17,6 +17,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { bloquearDesplazamiento } from '../lib/desplazamiento'
 import type { PacienteBreve } from '../lib/tipos'
 import { useAuth } from '../lib/auth'
 
@@ -149,8 +150,7 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
   // de ahí ni Escape ni las flechas volvían a responder.
   useEffect(() => {
     if (!abierta) return
-    const desbordeOriginal = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const liberar = bloquearDesplazamiento()
 
     function atrapar(e: KeyboardEvent) {
       if (e.key !== 'Tab' || !panel.current) return
@@ -172,7 +172,7 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
     document.addEventListener('keydown', atrapar, true)
     return () => {
       document.removeEventListener('keydown', atrapar, true)
-      document.body.style.overflow = desbordeOriginal
+      liberar()
     }
   }, [abierta])
 
@@ -200,7 +200,7 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
   // el documento, y la paleta se abre siempre ENCIMA de lo que haya.
   return createPortal(
     <div
-      className="velo-entra fixed inset-0 z-[70] flex items-start justify-center bg-velo p-4 pt-[10vh] backdrop-blur-[6px] print:hidden"
+      className="velo-entra fixed inset-0 z-[70] flex items-start justify-center bg-velo p-4 pt-[10dvh] backdrop-blur-[6px] print:hidden"
       onClick={onCerrar}
     >
       <div
@@ -238,7 +238,7 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
           <kbd className="tecla hidden shrink-0 sm:block">ESC</kbd>
         </div>
 
-        <div id="paleta-lista" ref={lista} role="listbox" aria-label="Resultados" className="max-h-[52vh] overflow-y-auto p-2">
+        <div id="paleta-lista" ref={lista} role="listbox" aria-label="Resultados" className="max-h-[52dvh] overflow-y-auto overscroll-contain p-2">
           {todos.length === 0 && (
             <p className="px-4 py-8 text-center text-sm text-tinta-tenue">
               {fallo

@@ -1829,5 +1829,1059 @@
     }
    ]
   }
+ },
+ {
+  "clave": "ryff",
+  "nombre": "Escala de Bienestar Psicológico de Ryff",
+  "sigla": "BPS",
+  "autores": "Ryff, 1989; versión española de 39 ítems de Díaz et al., 2006",
+  "descripcion": "Bienestar psicológico: 39 afirmaciones de 1 a 6 en seis dimensiones (autoaceptación, dominio del entorno, relaciones positivas, crecimiento personal, autonomía y propósito en la vida). Un total bajo indica vulnerabilidad y pide acompañamiento prioritario.",
+  "instrucciones": "Indique su nivel de acuerdo o de desacuerdo con cada una de las afirmaciones. Elija la respuesta que mejor se apegue a su realidad.",
+  "orden": 50,
+  "definicion": {
+   "opciones": [
+    {
+     "valor": 1,
+     "texto": "Totalmente en desacuerdo"
+    },
+    {
+     "valor": 2,
+     "texto": "En desacuerdo"
+    },
+    {
+     "valor": 3,
+     "texto": "Algunas veces de acuerdo"
+    },
+    {
+     "valor": 4,
+     "texto": "Frecuentemente de acuerdo"
+    },
+    {
+     "valor": 5,
+     "texto": "De acuerdo"
+    },
+    {
+     "valor": 6,
+     "texto": "Totalmente de acuerdo"
+    }
+   ],
+   "items": [
+    {
+     "n": 1,
+     "texto": "Cuando repaso la historia de mi vida estoy contento con cómo han resultado las cosas."
+    },
+    {
+     "n": 2,
+     "texto": "A menudo me siento solo porque tengo pocos amigos íntimos con quién hablar de mis problemas."
+    },
+    {
+     "n": 3,
+     "texto": "No tengo miedo de expresar mis opiniones, aun cuando son opuestas a las opiniones de los demás."
+    },
+    {
+     "n": 4,
+     "texto": "Me preocupa cómo otra gente evalúa las elecciones que he hecho en mi vida."
+    },
+    {
+     "n": 5,
+     "texto": "Me resulta difícil dirigir mi vida hacia un camino que me satisfaga."
+    },
+    {
+     "n": 6,
+     "texto": "Disfruto haciendo planes para el futuro y trabajar para hacerlos realidad."
+    },
+    {
+     "n": 7,
+     "texto": "En general, me siento seguro y positivo conmigo mismo."
+    },
+    {
+     "n": 8,
+     "texto": "No tengo muchas personas que quieran escucharme cuando necesito hablar."
+    },
+    {
+     "n": 9,
+     "texto": "Tiendo a preocuparme sobre lo que otra gente piensa de mí."
+    },
+    {
+     "n": 10,
+     "texto": "Me juzgo por lo que yo creo que es importante, no por lo que otros piensan es importante."
+    },
+    {
+     "n": 11,
+     "texto": "He sido capaz de construir un hogar y un modo de vida a mi gusto."
+    },
+    {
+     "n": 12,
+     "texto": "Soy una persona activa al realizar los proyectos que propuse para mí mismo."
+    },
+    {
+     "n": 13,
+     "texto": "Si tuviera la oportunidad, hay muchas cosas de mí mismo que cambiaría."
+    },
+    {
+     "n": 14,
+     "texto": "Siento que mis amistades me aportan muchas cosas."
+    },
+    {
+     "n": 15,
+     "texto": "Tiendo a estar influenciado por la gente con fuertes convicciones."
+    },
+    {
+     "n": 16,
+     "texto": "En general, siento que soy responsable de la situación en la que vivo."
+    },
+    {
+     "n": 17,
+     "texto": "Me siento bien cuando pienso en lo que he hecho en el pasado y lo que espero hacer en el futuro."
+    },
+    {
+     "n": 18,
+     "texto": "Mis objetivos en la vida han sido más una fuente de satisfacción que de frustración para mí."
+    },
+    {
+     "n": 19,
+     "texto": "Me gusta la mayor parte de los aspectos de mi personalidad."
+    },
+    {
+     "n": 20,
+     "texto": "Me parece que la mayor parte de las personas tienen más amigos que yo."
+    },
+    {
+     "n": 21,
+     "texto": "Tengo confianza en mis opiniones incluso si son contrarias al consenso general."
+    },
+    {
+     "n": 22,
+     "texto": "Las demandas de la vida diaria a menudo me deprimen."
+    },
+    {
+     "n": 23,
+     "texto": "Tengo clara la dirección y el objetivo de mi vida."
+    },
+    {
+     "n": 24,
+     "texto": "En general, con el tiempo siento que sigo aprendiendo más sobre mí mismo."
+    },
+    {
+     "n": 25,
+     "texto": "En muchos aspectos, me siento decepcionado de mis logros en la vida."
+    },
+    {
+     "n": 26,
+     "texto": "No he experimentado muchas relaciones cercanas y de confianza."
+    },
+    {
+     "n": 27,
+     "texto": "Es difícil para mí expresar mis propias opiniones en asuntos polémicos."
+    },
+    {
+     "n": 28,
+     "texto": "Soy bastante bueno manejando muchas de mis responsabilidades en la vida diaria."
+    },
+    {
+     "n": 29,
+     "texto": "No tengo claro qué es lo que intento conseguir en la vida."
+    },
+    {
+     "n": 30,
+     "texto": "Hace mucho tiempo que dejé de intentar hacer grandes mejoras o cambios en mi vida."
+    },
+    {
+     "n": 31,
+     "texto": "En su mayor parte, me siento orgulloso de quien soy y la vida que llevo."
+    },
+    {
+     "n": 32,
+     "texto": "Sé que puedo confiar en mis amigos, y ellos saben que pueden confiar en mí."
+    },
+    {
+     "n": 33,
+     "texto": "A menudo cambio mis decisiones si mis amigos o mi familia están en desacuerdo."
+    },
+    {
+     "n": 34,
+     "texto": "No quiero intentar nuevas formas de hacer las cosas; mi vida está bien como está."
+    },
+    {
+     "n": 35,
+     "texto": "Pienso que es importante tener nuevas experiencias que desafíen lo que uno piensa de sí mismo y del mundo."
+    },
+    {
+     "n": 36,
+     "texto": "Cuando pienso en ello, realmente con los años no he mejorado mucho como persona."
+    },
+    {
+     "n": 37,
+     "texto": "Tengo la sensación de que con el tiempo me he desarrollado mucho como persona."
+    },
+    {
+     "n": 38,
+     "texto": "Para mí, la vida ha sido un proceso continuo de estudio, cambio y crecimiento."
+    },
+    {
+     "n": 39,
+     "texto": "Si me sintiera infeliz con mi situación de vida daría los pasos más eficaces para cambiarla."
+    }
+   ],
+   "escalas": [
+    {
+     "clave": "total",
+     "nombre": "Bienestar psicológico",
+     "items": "todos",
+     "invertidos": [
+      2,
+      4,
+      5,
+      8,
+      9,
+      13,
+      15,
+      20,
+      22,
+      25,
+      26,
+      27,
+      29,
+      30,
+      33,
+      34,
+      36
+     ],
+     "usa": "bruta",
+     "rangos": [
+      {
+       "desde": 39,
+       "hasta": 116,
+       "nivel": "severo",
+       "etiqueta": "Bienestar psicológico bajo: acompañamiento clínico prioritario",
+       "problema": "bienestar_bajo"
+      },
+      {
+       "desde": 117,
+       "hasta": 140,
+       "nivel": "leve",
+       "etiqueta": "Bienestar psicológico moderado: seguimiento sin emergencia",
+       "problema": "bienestar_bajo"
+      },
+      {
+       "desde": 141,
+       "hasta": 175,
+       "nivel": "normal",
+       "etiqueta": "Bienestar psicológico alto"
+      },
+      {
+       "desde": 176,
+       "hasta": 234,
+       "nivel": "normal",
+       "etiqueta": "Bienestar psicológico elevado"
+      }
+     ]
+    },
+    {
+     "clave": "autoaceptacion",
+     "nombre": "Autoaceptación",
+     "items": [
+      1,
+      7,
+      13,
+      19,
+      25,
+      31
+     ],
+     "invertidos": [
+      13,
+      25
+     ],
+     "usa": "bruta",
+     "rangos": [
+      {
+       "desde": 6,
+       "hasta": 17,
+       "nivel": "normal",
+       "etiqueta": "Autoaceptación: bajo"
+      },
+      {
+       "desde": 18,
+       "hasta": 26,
+       "nivel": "normal",
+       "etiqueta": "Autoaceptación: medio"
+      },
+      {
+       "desde": 27,
+       "hasta": 36,
+       "nivel": "normal",
+       "etiqueta": "Autoaceptación: alto"
+      }
+     ]
+    },
+    {
+     "clave": "dominio",
+     "nombre": "Dominio del entorno",
+     "items": [
+      5,
+      11,
+      16,
+      22,
+      28,
+      39
+     ],
+     "invertidos": [
+      5,
+      22
+     ],
+     "usa": "bruta",
+     "rangos": [
+      {
+       "desde": 6,
+       "hasta": 17,
+       "nivel": "normal",
+       "etiqueta": "Dominio del entorno: bajo"
+      },
+      {
+       "desde": 18,
+       "hasta": 26,
+       "nivel": "normal",
+       "etiqueta": "Dominio del entorno: medio"
+      },
+      {
+       "desde": 27,
+       "hasta": 36,
+       "nivel": "normal",
+       "etiqueta": "Dominio del entorno: alto"
+      }
+     ]
+    },
+    {
+     "clave": "relaciones",
+     "nombre": "Relaciones positivas",
+     "items": [
+      2,
+      8,
+      14,
+      20,
+      26,
+      32
+     ],
+     "invertidos": [
+      2,
+      8,
+      20,
+      26
+     ],
+     "usa": "bruta",
+     "rangos": [
+      {
+       "desde": 6,
+       "hasta": 17,
+       "nivel": "normal",
+       "etiqueta": "Relaciones positivas: bajo"
+      },
+      {
+       "desde": 18,
+       "hasta": 26,
+       "nivel": "normal",
+       "etiqueta": "Relaciones positivas: medio"
+      },
+      {
+       "desde": 27,
+       "hasta": 36,
+       "nivel": "normal",
+       "etiqueta": "Relaciones positivas: alto"
+      }
+     ]
+    },
+    {
+     "clave": "crecimiento",
+     "nombre": "Crecimiento personal",
+     "items": [
+      24,
+      30,
+      34,
+      35,
+      36,
+      37,
+      38
+     ],
+     "invertidos": [
+      30,
+      34,
+      36
+     ],
+     "usa": "bruta",
+     "rangos": [
+      {
+       "desde": 7,
+       "hasta": 20,
+       "nivel": "normal",
+       "etiqueta": "Crecimiento personal: bajo"
+      },
+      {
+       "desde": 21,
+       "hasta": 31,
+       "nivel": "normal",
+       "etiqueta": "Crecimiento personal: medio"
+      },
+      {
+       "desde": 32,
+       "hasta": 42,
+       "nivel": "normal",
+       "etiqueta": "Crecimiento personal: alto"
+      }
+     ]
+    },
+    {
+     "clave": "autonomia",
+     "nombre": "Autonomía",
+     "items": [
+      3,
+      4,
+      9,
+      10,
+      15,
+      21,
+      27,
+      33
+     ],
+     "invertidos": [
+      4,
+      9,
+      15,
+      27,
+      33
+     ],
+     "usa": "bruta",
+     "rangos": [
+      {
+       "desde": 8,
+       "hasta": 23,
+       "nivel": "normal",
+       "etiqueta": "Autonomía: bajo"
+      },
+      {
+       "desde": 24,
+       "hasta": 35,
+       "nivel": "normal",
+       "etiqueta": "Autonomía: medio"
+      },
+      {
+       "desde": 36,
+       "hasta": 48,
+       "nivel": "normal",
+       "etiqueta": "Autonomía: alto"
+      }
+     ]
+    },
+    {
+     "clave": "proposito",
+     "nombre": "Propósito en la vida",
+     "items": [
+      6,
+      12,
+      17,
+      18,
+      23,
+      29
+     ],
+     "invertidos": [
+      29
+     ],
+     "usa": "bruta",
+     "rangos": [
+      {
+       "desde": 6,
+       "hasta": 17,
+       "nivel": "normal",
+       "etiqueta": "Propósito en la vida: bajo"
+      },
+      {
+       "desde": 18,
+       "hasta": 26,
+       "nivel": "normal",
+       "etiqueta": "Propósito en la vida: medio"
+      },
+      {
+       "desde": 27,
+       "hasta": 36,
+       "nivel": "normal",
+       "etiqueta": "Propósito en la vida: alto"
+      }
+     ]
+    }
+   ],
+   "alertas": []
+  }
+ },
+ {
+  "clave": "ads",
+  "nombre": "Escala de Dependencia al Alcohol",
+  "sigla": "ADS",
+  "autores": "Skinner y Horn, 1984",
+  "descripcion": "Gravedad de la dependencia al alcohol: 25 preguntas sobre consumo, pérdida de control y síntomas de abstinencia; total de 0 a 48.",
+  "instrucciones": "Las siguientes preguntas se refieren a su forma de tomar bebidas alcohólicas. Elija en cada una la respuesta que mejor describa su caso. Si no toma alcohol, responda «No» (o la primera alternativa).",
+  "orden": 60,
+  "definicion": {
+   "items": [
+    {
+     "n": 1,
+     "texto": "¿Cuánto tomó la última vez que ingirió alcohol?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "Lo suficiente como para ponerme contento"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Lo suficiente para emborracharme"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Lo suficiente para perderme"
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "texto": "¿Con frecuencia tiene crudas los domingos o los lunes por la mañana?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Sí"
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "texto": "¿Tuvo temblores cuando dejó de tomar (en las manos o un temblor interno)?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Algunas veces"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Casi siempre que tomo"
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "texto": "¿Se puso mal (vómitos, dolor de estómago) cuando tomó?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Algunas veces"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Casi siempre que tomo"
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "texto": "¿Ha visto, sentido u oído cosas que no existen, estando muy ansioso, inquieto y alterado?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Una vez"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Varias veces"
+      }
+     ]
+    },
+    {
+     "n": 6,
+     "texto": "¿Cuando toma se tropieza, se va de lado o camina en «zigzag»?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Algunas veces"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Varias veces"
+      }
+     ]
+    },
+    {
+     "n": 7,
+     "texto": "¿Se sintió con mucho calor o excesivamente sudoroso como consecuencia de haber tomado?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Algunas veces"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Varias veces"
+      }
+     ]
+    },
+    {
+     "n": 8,
+     "texto": "¿Vio cosas que en realidad no existían como consecuencia de haber tomado?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Una vez"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Varias veces"
+      }
+     ]
+    },
+    {
+     "n": 9,
+     "texto": "¿Le ha dado miedo pensar en no tener un trago a la mano cuando lo necesite?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Algunas veces"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Varias veces"
+      }
+     ]
+    },
+    {
+     "n": 10,
+     "texto": "¿Tuvo lagunas mentales (pérdida de memoria, sin perderse totalmente) como resultado de la bebida?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Algunas veces"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Frecuentemente"
+      },
+      {
+       "valor": 3,
+       "rotulo": "3",
+       "texto": "Casi siempre que tomo"
+      }
+     ]
+    },
+    {
+     "n": 11,
+     "texto": "¿Cargó una botella con usted o la escondió en algún lugar para tenerla a la mano?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Algunas veces"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Casi siempre"
+      }
+     ]
+    },
+    {
+     "n": 12,
+     "texto": "Después de un periodo de abstinencia (sin beber), ¿terminó usted por tomar fuertemente de nuevo?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Algunas veces"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Casi siempre"
+      }
+     ]
+    },
+    {
+     "n": 13,
+     "texto": "¿Llegó usted a perderse completamente como resultado de haber tomado?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Alguna vez"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Más de una vez"
+      }
+     ]
+    },
+    {
+     "n": 14,
+     "texto": "¿Tuvo ataques (crisis) después de un periodo en que tomó?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Alguna vez"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Varias veces"
+      }
+     ]
+    },
+    {
+     "n": 15,
+     "texto": "¿Bebió a lo largo del día?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Sí"
+      }
+     ]
+    },
+    {
+     "n": 16,
+     "texto": "Después de beber fuertemente, ¿sintió que su pensamiento estaba confuso o poco claro?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Sí, pero sólo unas horas"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Sí, durante unos dos días"
+      },
+      {
+       "valor": 3,
+       "rotulo": "3",
+       "texto": "Sí, por muchos días"
+      }
+     ]
+    },
+    {
+     "n": 17,
+     "texto": "Como resultado de la bebida, ¿sintió que su corazón latía rápidamente?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Alguna vez"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Varias veces"
+      }
+     ]
+    },
+    {
+     "n": 18,
+     "texto": "¿Pensó constantemente en tomar alcohol?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Sí"
+      }
+     ]
+    },
+    {
+     "n": 19,
+     "texto": "Como resultado de haber tomado, ¿oyó cosas que realmente no existían?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Algunas veces"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Casi siempre"
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "texto": "¿Tuvo sensaciones raras o atemorizantes cuando tomó?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Algunas veces"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Casi siempre"
+      }
+     ]
+    },
+    {
+     "n": 21,
+     "texto": "Como resultado de haber tomado, ¿sintió cosas que se arrastraban en su cuerpo y que realmente no existían (gusanos, arañas, etc.)?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Algunas veces"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Varias veces"
+      }
+     ]
+    },
+    {
+     "n": 22,
+     "texto": "Con relación a las lagunas mentales (pérdida de la memoria):",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "Nunca he tenido una laguna"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "He tenido lagunas que duran menos de una hora"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "He tenido lagunas que duran varias horas"
+      },
+      {
+       "valor": 3,
+       "rotulo": "3",
+       "texto": "He tenido lagunas que duran un día o más"
+      }
+     ]
+    },
+    {
+     "n": 23,
+     "texto": "¿Trató de dejar de beber sin lograrlo?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Una vez"
+      },
+      {
+       "valor": 2,
+       "rotulo": "2",
+       "texto": "Varias veces"
+      }
+     ]
+    },
+    {
+     "n": 24,
+     "texto": "¿Suele tomar muy rápido?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "No"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "Sí"
+      }
+     ]
+    },
+    {
+     "n": 25,
+     "texto": "Después de tomar una o dos copas, ¿generalmente podía dejar de tomar?",
+     "opciones": [
+      {
+       "valor": 0,
+       "rotulo": "0",
+       "texto": "Sí"
+      },
+      {
+       "valor": 1,
+       "rotulo": "1",
+       "texto": "No"
+      }
+     ]
+    }
+   ],
+   "escalas": [
+    {
+     "clave": "total",
+     "nombre": "Dependencia al alcohol",
+     "items": "todos",
+     "usa": "bruta",
+     "rangos": [
+      {
+       "desde": 0,
+       "hasta": 7,
+       "nivel": "normal",
+       "etiqueta": "No dependiente"
+      },
+      {
+       "desde": 8,
+       "hasta": 13,
+       "nivel": "leve",
+       "etiqueta": "Dependencia baja",
+       "problema": "consumo_alcohol"
+      },
+      {
+       "desde": 14,
+       "hasta": 21,
+       "nivel": "moderado",
+       "etiqueta": "Dependencia moderada",
+       "problema": "consumo_alcohol"
+      },
+      {
+       "desde": 22,
+       "hasta": 30,
+       "nivel": "severo",
+       "etiqueta": "Dependencia: riesgo sustancial",
+       "problema": "consumo_alcohol"
+      },
+      {
+       "desde": 31,
+       "hasta": 48,
+       "nivel": "severo",
+       "etiqueta": "Dependencia severa",
+       "problema": "consumo_alcohol"
+      }
+     ]
+    }
+   ],
+   "alertas": []
+  }
  }
 ]

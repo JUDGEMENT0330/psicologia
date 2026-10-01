@@ -96,7 +96,7 @@ export function VisorRetrato({
           <img
             src={src}
             alt={`Retrato de ${nombre ?? 'la cuenta'}`}
-            className="mx-auto max-h-[60vh] w-auto border border-borde bg-superficie-alta object-contain"
+            className="mx-auto max-h-[60dvh] w-auto border border-borde bg-superficie-alta object-contain"
           />
         ) : (
           <div className="flex h-56 items-center justify-center border border-borde bg-superficie-alta text-4xl font-semibold text-tinta-tenue">

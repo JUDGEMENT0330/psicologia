@@ -4,8 +4,9 @@ Sistema de **psicología clínica y evaluación** de la Sección de Sanidad del
 Destacamento Militar N° 1. Misma marca, tipografía y sistema visual que la
 consulta de medicina general y la clínica odontológica.
 
-- **Baterías configurables** por la psicóloga (Rosenberg, BAI, BDI-II y
-  Mini-Mult precargados; se pueden editar o crear instrumentos nuevos).
+- **Baterías configurables** por la psicóloga (Rosenberg, BAI, BDI-II,
+  Mini-Mult, Bienestar Psicológico de Ryff —BPS— y Dependencia al Alcohol
+  —ADS— precargados; se pueden editar o crear instrumentos nuevos).
 - **Enlaces para compartir**: uno personal por evaluado —WhatsApp, copiar o QR
   impreso— y, opcionalmente, uno de cohorte con PIN. Al responder, **la base
   califica y asigna el resultado a la ficha** de esa persona.
@@ -49,7 +50,7 @@ clínica. Todo lo propio lleva prefijo `ps_`:
 | `ps_problemas` | Catálogo de problemas y sus áreas cerebrales (AAL) |
 | `ps_notas` | Notas de la psicóloga: entrevista, seguimiento, devolución, referencia |
 
-Migraciones en `supabase/migraciones/` (30–33), **ya aplicadas** en el
+Migraciones en `supabase/migraciones/` (30–34), **ya aplicadas** en el
 proyecto. Son aditivas: el único cambio sobre lo compartido son dos valores
 nuevos del tipo `rol_usuario` (`psicologo`, `comandante`).
 
@@ -115,8 +116,8 @@ npm run dev
 Variables (opcionales; hay valores públicos por defecto): `VITE_SUPABASE_URL`,
 `VITE_SUPABASE_ANON_KEY`. La clave es publicable; la protección es RLS.
 
-- `npm run semilla` — regenera `supabase/migraciones/32_instrumentos_iniciales.sql`
-  y `supabase/semillas/*.json` desde `herramientas/semilla.py`.
+- `npm run semilla` — regenera `supabase/migraciones/32_instrumentos_iniciales.sql`,
+  `34_bienestar_y_alcohol.sql` y `supabase/semillas/*.json` desde `herramientas/semilla.py`.
 - `python3 herramientas/cerebro/construir.py <aal.mz3>` — regenera
   `public/cerebro/aal.bin` (instrucciones en el propio archivo).
 
@@ -132,4 +133,5 @@ WhatsApp.
 Ver [docs/CREDITOS.md](docs/CREDITOS.md). En resumen: malla del atlas AAL vía
 NiiVue (BSD-2-Clause); ítems, clave y normas del Mini-Mult tomados como datos
 de `vilnar/quiz` (sistema de evaluación psicológica militar, GPL-2.0) y
-traducidos; Rosenberg, BAI y BDI-II desde las hojas de respuesta de la clínica.
+traducidos; Rosenberg, BAI, BDI-II, BPS (Ryff) y ADS desde las hojas de respuesta
+de la clínica.
