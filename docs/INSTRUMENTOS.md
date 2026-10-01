@@ -78,3 +78,23 @@ calcularlo con la vigente.
 techo (Hs +0,5K, Pd +0,4K, Pt +1K, Sc +1K, Ma +0,2K). Si la Sección dispone
 de normas locales o de la conversión a puntajes MMPI de la versión en español,
 reemplace media y desviación en cada escala.
+
+## BPS · Bienestar Psicológico de Ryff
+
+39 ítems de 1 a 6 (versión española de Díaz et al., 2006). Los 17 ítems
+redactados en negativo (2, 4, 5, 8, 9, 13, 15, 20, 22, 25, 26, 27, 29, 30, 33,
+34, 36) se invierten (7 − valor), de modo que un puntaje alto es siempre más
+bienestar. Total de 39 a 234 con los cortes de la hoja FAES: ≤ 116 bajo
+(hallazgo `bienestar_bajo`, nivel severo: acompañamiento prioritario), 117–140
+moderado (nivel leve: seguimiento sin emergencia), 141–175 alto y ≥ 176
+elevado. Las seis dimensiones se califican con los rangos de la hoja
+(bajo / medio / alto) para la lectura, pero no generan hallazgo: la hoja indica
+que ese análisis es para las unidades. Si la Sección prefiere sumar sin
+invertir, quite la lista `invertidos` desde «Avanzado».
+
+## ADS · Dependencia al Alcohol (Skinner y Horn)
+
+25 ítems con alternativas propias que valen 0–1, 0–2 o 0–3 (el ítem 25
+puntúa al revés: «Sí» 0, «No» 1). Total de 0 a 48: 0–7 no dependiente,
+8–13 baja (leve), 14–21 moderada, 22–30 riesgo sustancial (severo),
+31–48 severa (severo). Desde «leve» genera el hallazgo `consumo_alcohol`.

@@ -4,6 +4,7 @@ import { Link, type LinkProps } from 'react-router-dom'
 import type { ReactNode, InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes, ButtonHTMLAttributes } from 'react'
 import type { Nivel } from '../lib/tipos'
 import { NOMBRE_NIVEL } from '../lib/formato'
+import { bloquearDesplazamiento } from '../lib/desplazamiento'
 
 /* ============================================================================
    Componentes base.
@@ -425,8 +426,7 @@ export function Modal({
 
   useEffect(() => {
     const previo = document.activeElement as HTMLElement | null
-    const desbordeOriginal = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const liberar = bloquearDesplazamiento()
 
     // El foco entra por el primer control del cuerpo, no por el aspa de cerrar:
     // el diálogo se abre para escribir, no para salir de él. Se descartan los
@@ -470,7 +470,7 @@ export function Modal({
     document.addEventListener('keydown', alPulsar, true)
     return () => {
       document.removeEventListener('keydown', alPulsar, true)
-      document.body.style.overflow = desbordeOriginal
+      liberar()
       previo?.focus?.()
     }
   }, [])
@@ -481,7 +481,7 @@ export function Modal({
   // cubrir la pantalla y el diálogo quedaba recortado a la altura de la tarjeta.
   return createPortal(
     <div
-      className="velo-entra fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-velo p-0 backdrop-blur-[6px] sm:items-start sm:p-8 print:hidden"
+      className="velo-entra fixed inset-0 z-50 flex items-end justify-center bg-velo p-0 backdrop-blur-[6px] sm:items-start sm:p-8 print:hidden"
       onMouseDown={(e) => { pulsadoEnVelo.current = e.target === e.currentTarget }}
       onClick={(e) => {
         if (e.target === e.currentTarget && pulsadoEnVelo.current) onCerrar()
@@ -498,9 +498,15 @@ export function Modal({
         /* En el teléfono es una hoja que sube y se apoya en el borde inferior;
            en el escritorio, una tarjeta que se materializa en el centro. El
            mismo diálogo, la forma que toca en cada mano. */
-        className={`material-entra vidrio-flotante w-full ${ancho} overflow-hidden rounded-t-hoja border border-borde bg-superficie outline-none sm:rounded-hoja`}
+        /* Alto acotado a la pantalla visible (`dvh`: descuenta las barras del
+           navegador del teléfono) y desplazamiento DENTRO del cuerpo. Antes
+           desplazaba el velo, y con la hoja apoyada abajo un formulario más
+           alto que la pantalla —capturar 71 ítems, una convocatoria con su
+           lista de personas— crecía hacia arriba por fuera del velo: el título
+           y el aspa de cerrar quedaban donde ningún desplazamiento llegaba. */
+        className={`material-entra vidrio-flotante flex max-h-[94dvh] w-full ${ancho} flex-col overflow-hidden rounded-t-hoja border border-borde bg-superficie outline-none sm:max-h-[calc(100dvh-4rem)] sm:rounded-hoja`}
       >
-        <div className="vidrio sticky top-0 z-10 px-4 pt-2 pb-0">
+        <div className="vidrio shrink-0 px-4 pt-2 pb-0">
           {/* El tirador dice «esto se arrastra» en el teléfono; en el
               escritorio sobra y no se dibuja. */}
           <div className="mx-auto mb-2 tirador sm:hidden" aria-hidden />
@@ -518,7 +524,7 @@ export function Modal({
             </button>
           </div>
         </div>
-        <div data-cuerpo className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{children}</div>
+        <div data-cuerpo className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{children}</div>
       </div>
     </div>,
     document.body,

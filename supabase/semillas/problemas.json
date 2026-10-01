@@ -244,5 +244,29 @@
   ],
   "descripcion": "Refiere abuso de bebidas alcohólicas.",
   "explicacion": "Estriado (caudado y putamen, vía de recompensa), orbitofrontal medial, ínsula (deseo de consumo) y vermis cerebeloso, sensible al daño por alcohol."
+ },
+ {
+  "clave": "bienestar_bajo",
+  "nombre": "Bienestar psicológico bajo",
+  "color": "#475569",
+  "orden": 120,
+  "regiones": [
+   23,
+   24,
+   25,
+   26,
+   31,
+   32,
+   35,
+   36,
+   67,
+   68,
+   29,
+   30,
+   71,
+   72
+  ],
+  "descripcion": "Insatisfacción, dependencia excesiva, falta de dirección o estancamiento; puede acompañarse de pensamientos negativistas o derrotistas.",
+  "explicacion": "Red de autorreferencia y valoración (prefrontal medial, orbitofrontal medial, cingulado anterior y posterior, precúneo), ínsula y núcleo caudado, que participan en la satisfacción, el propósito y la recompensa."
  }
 ]

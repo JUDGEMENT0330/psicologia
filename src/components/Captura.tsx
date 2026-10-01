@@ -40,7 +40,9 @@ export default function Captura({ ap, bateria, onCerrar, onGuardado }: {
   }
 
   // Teclado: dígito = alternativa (1 es la primera), V/F para verdadero/falso,
-  // flechas para moverse. Avanza solo al marcar.
+  // S/N para sí/no, flechas para moverse. Avanza solo al marcar. En las hojas
+  // con puntaje impreso por alternativa (BDI-II, ADS) el dígito es ese
+  // puntaje —el número que la persona marcó en el papel—, empezando en 0.
   function alTeclear(e: React.KeyboardEvent) {
     if (!ins) return
     const actual = ins[cursor.i]
@@ -48,9 +50,14 @@ export default function Captura({ ap, bateria, onCerrar, onGuardado }: {
     const it = actual.definicion.items[cursor.n]
     const ops = it.opciones ?? actual.definicion.opciones ?? []
     let idx = -1
-    if (/^[1-9]$/.test(e.key)) idx = Number(e.key) - 1
-    else if (/^[vVsS]$/.test(e.key)) idx = ops.findIndex((o) => /^verdad/i.test(o.texto))
-    else if (/^[fFnN]$/.test(e.key)) idx = ops.findIndex((o) => /^fals/i.test(o.texto))
+    if (/^[0-9]$/.test(e.key) && it.opciones) {
+      idx = ops.findIndex((o) => String(o.rotulo ?? o.valor) === e.key)
+      if (idx < 0) idx = ops.findIndex((o) => String(o.rotulo ?? o.valor).startsWith(e.key))
+    } else if (/^[1-9]$/.test(e.key)) idx = Number(e.key) - 1
+    else if (/^[vV]$/.test(e.key)) idx = ops.findIndex((o) => /^verdad/i.test(o.texto))
+    else if (/^[fF]$/.test(e.key)) idx = ops.findIndex((o) => /^fals/i.test(o.texto))
+    else if (/^[sS]$/.test(e.key)) idx = ops.findIndex((o) => /^(s[ií](?![a-záéíóúñ])|verdad)/i.test(o.texto))
+    else if (/^[nN]$/.test(e.key)) idx = ops.findIndex((o) => /^(no\b|fals)/i.test(o.texto))
     else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') return mover(1, e)
     else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') return mover(-1, e)
     else return
@@ -92,10 +99,10 @@ export default function Captura({ ap, bateria, onCerrar, onGuardado }: {
       {!ins ? <Cargando /> : (
         <div className="space-y-4" onKeyDown={alTeclear} tabIndex={0}>
           <p className="text-[12px] leading-relaxed text-tinta-tenue">
-            Teclado: <kbd className="tecla">1</kbd>–<kbd className="tecla">7</kbd> elige la alternativa, <kbd className="tecla">V</kbd>/<kbd className="tecla">F</kbd> verdadero o falso,
-            flechas para moverse. Avanza solo. <span className="cifras">{hechas} / {total}</span>
+            Teclado: <kbd className="tecla">1</kbd>–<kbd className="tecla">7</kbd> elige la alternativa (en BDI-II y ADS, el puntaje impreso: <kbd className="tecla">0</kbd>–<kbd className="tecla">3</kbd>),
+            <kbd className="tecla">V</kbd>/<kbd className="tecla">F</kbd> verdadero o falso, <kbd className="tecla">S</kbd>/<kbd className="tecla">N</kbd> sí o no, flechas para moverse. Avanza solo. <span className="cifras">{hechas} / {total}</span>
           </p>
-          <div className="max-h-[60vh] space-y-5 overflow-y-auto pr-1">
+          <div className="max-h-[48dvh] space-y-5 overflow-y-auto overscroll-contain pr-1 sm:max-h-[60dvh]">
             {ins.map((x, i) => (
               <section key={x.clave}>
                 <h3 className="rotulo mb-2 text-marca">{x.nombre}</h3>

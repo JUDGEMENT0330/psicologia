@@ -174,8 +174,11 @@ function Aplicar({ token, ap }: { token: string; ap: Extract<Apertura, { modo: '
   const paginas = useMemo<Pagina[]>(() => {
     const out: Pagina[] = []
     for (const ins of ap.instrumentos) {
-      // Los ítems con alternativas propias (BDI-II) ocupan más: menos por página.
-      const tam = ins.items.some((i) => i.opciones) ? 3 : POR_PAGINA
+      // Los ítems con alternativas propias ocupan más: menos por página. Las
+      // del BDI-II son frases largas (3 por página); las de la ADS, cortas (5).
+      const propias = ins.items.flatMap((i) => i.opciones ?? [])
+      const largo = propias.length ? propias.reduce((s, o) => s + o.texto.length, 0) / propias.length : 0
+      const tam = !propias.length ? POR_PAGINA : largo > 30 ? 3 : 5
       for (let i = 0; i < ins.items.length; i += tam) out.push({ instrumento: ins, items: ins.items.slice(i, i + tam), primera: i === 0 })
     }
     return out
@@ -205,14 +208,19 @@ function Aplicar({ token, ap }: { token: string; ap: Extract<Apertura, { modo: '
     return data as { ok: boolean; motivo?: string; faltan?: number; resumen?: never }
   }, [token, resp, ctx])
 
-  async function ir(n: number) {
+  /** Cambia de página. Con `foco`, lleva a ese ítem (el primero que falta). */
+  async function ir(n: number, foco?: string) {
     setError(null)
     if (paso >= 0 && n > paso) {
       // Guardado silencioso al avanzar: si falla, se sigue; el envío final reintenta.
       guardar(false).catch(() => {})
     }
     setPaso(n)
-    requestAnimationFrame(() => arriba.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+    requestAnimationFrame(() => {
+      const item = foco ? document.getElementById(foco) : null
+      if (item) item.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      else arriba.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
   }
 
   async function enviar() {
@@ -339,7 +347,7 @@ function Aplicar({ token, ap }: { token: string; ap: Extract<Apertura, { modo: '
                 <span className="text-tinta">{i.nombre}</span>
                 {faltan.length === 0 ? <span className="text-exito">Completo</span> : (
                   <button type="button" className="text-right text-alerta underline"
-                    onClick={() => ir(paginas.findIndex((p) => p.instrumento.clave === i.clave && p.items.some((x) => x.n === faltan[0].n)))}>
+                    onClick={() => ir(paginas.findIndex((p) => p.instrumento.clave === i.clave && p.items.some((x) => x.n === faltan[0].n)), `item-${i.clave}-${faltan[0].n}`)}>
                     Faltan {faltan.length}: {faltan.slice(0, 6).map((x) => x.n).join(', ')}{faltan.length > 6 ? '…' : ''}
                   </button>
                 )}
@@ -384,12 +392,14 @@ function PaginaItems({ pagina, resp, marcar }: { pagina: Pagina; resp: Record<st
         const propias = !!it.opciones
         return (
           <Tarjeta key={it.n} className="p-4">
-            <fieldset>
+            <fieldset id={`item-${ins.clave}-${it.n}`} className="scroll-mt-24">
               <legend className="mb-3 flex gap-2 text-[15px] leading-snug text-tinta">
                 <span className="cifras shrink-0 text-tinta-tenue">{it.n}.</span>
                 <span className={propias ? 'font-semibold' : ''}>{it.texto}</span>
               </legend>
-              <div className={propias ? 'space-y-2' : ops.length <= 2 ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-2 gap-2 sm:grid-cols-4'}>
+              {/* Seis alternativas (Ryff) van en filas de tres: en cuatro
+                  columnas la última fila quedaba con dos sueltas. */}
+              <div className={propias ? 'space-y-2' : ops.length <= 2 ? 'grid grid-cols-2 gap-2' : ops.length % 3 === 0 ? 'grid grid-cols-2 gap-2 sm:grid-cols-3' : 'grid grid-cols-2 gap-2 sm:grid-cols-4'}>
                 {ops.map((o, idx) => {
                   const sel = resp[it.n] === idx
                   return (

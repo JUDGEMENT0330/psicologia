@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Rastro, gomaElastica, proyectar, resorte, type Muelle } from '../lib/resorte'
+import { bloquearDesplazamiento } from '../lib/desplazamiento'
 
 /* ============================================================================
    PIEZAS DE VIDRIO
@@ -96,6 +97,10 @@ export function Hoja({
     const previo = document.activeElement as HTMLElement | null
     panel.current?.focus()
     const alPulsar = (e: KeyboardEvent) => {
+      // Sólo si es la capa de arriba: con la paleta (Ctrl+K) abierta encima,
+      // Escape cerraba las dos de un golpe.
+      const capas = document.querySelectorAll('[data-capa]')
+      if (capas[capas.length - 1] !== panel.current?.parentElement) return
       if (e.key === 'Escape') {
         e.stopPropagation()
         cerrarConMuelle()
@@ -103,11 +108,10 @@ export function Hoja({
     }
     document.addEventListener('keydown', alPulsar)
     // El documento de detrás no se desplaza mientras hay una hoja encima.
-    const desbordeprevio = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const liberar = bloquearDesplazamiento()
     return () => {
       document.removeEventListener('keydown', alPulsar)
-      document.body.style.overflow = desbordeprevio
+      liberar()
       previo?.focus?.()
     }
   }, [cerrarConMuelle])
@@ -186,7 +190,7 @@ export function Hoja({
         aria-modal="true"
         aria-labelledby={idTitulo}
         tabIndex={-1}
-        className="vidrio-grueso vidrio-flotante relative flex max-h-[92vh] w-full max-w-xl flex-col rounded-t-hoja outline-none sm:mb-4 sm:rounded-hoja"
+        className="vidrio-grueso vidrio-flotante relative flex max-h-[92dvh] w-full max-w-xl flex-col rounded-t-hoja outline-none sm:mb-4 sm:rounded-hoja"
         style={{ willChange: 'transform' }}
       >
         {/* La zona de agarre. `touch-action: none` es obligatorio: sin él, el
@@ -552,7 +556,7 @@ export function Menu({
             aria-label={etiqueta}
             data-capa={estado === 'abierto' ? '' : undefined}
             style={{ ...sitio, transformOrigin: origen }}
-            className={`liquido-denso fixed z-[65] max-h-[70vh] overflow-y-auto rounded-tarjeta p-1.5 print:hidden ${
+            className={`liquido-denso fixed z-[65] max-h-[70dvh] overflow-y-auto rounded-tarjeta p-1.5 print:hidden ${
               ancho === 'boton' ? '' : ancho
             } ${estado === 'abierto' ? 'menu-entra' : 'menu-sale'}`}
           >

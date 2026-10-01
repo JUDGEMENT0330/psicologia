@@ -111,13 +111,19 @@ export function hojaEnBlanco({ bateria, instrumentos, paciente }: {
       const ins = por.get(c)
       if (!ins) return ''
       const d = ins.definicion
+      // Con más de cuatro alternativas (Ryff: seis) los textos no caben en el
+      // renglón: se imprimen una vez como clave y cada ítem lleva casillas
+      // numeradas, como la hoja de la clínica. El número es el que se teclea
+      // al capturar la hoja.
+      const numeradas = (d.opciones ?? []).length > 4
       return `<div class="${k > 0 ? 'salto' : ''}"><h2>${esc(ins.nombre)}${ins.sigla ? ` · ${esc(ins.sigla)}` : ''}</h2>
         ${ins.instrucciones ? `<p><i>${esc(ins.instrucciones)}</i></p>` : ''}
+        ${numeradas ? `<p>${(d.opciones ?? []).map((o, j) => `<b>${j + 1}</b> ${esc(o.texto)}`).join(' · ')}</p>` : ''}
         ${d.items.map((it) => it.opciones
           ? `<div class="grupo"><b>${it.n}. ${esc(it.texto)}</b>${it.opciones.map((o) =>
               `<div class="op"><span class="caja"></span>${esc(o.rotulo ?? o.valor)} ${esc(o.texto)}</div>`).join('')}</div>`
           : `<div class="item"><span class="num">${it.n}.</span><span>${esc(it.texto)}</span>
-              <span class="o">${(d.opciones ?? []).map((o) => `<span><span class="caja"></span>${esc(o.texto)}</span>`).join('')}</span></div>`).join('')}
+              <span class="o">${(d.opciones ?? []).map((o, j) => `<span><span class="caja"></span>${numeradas ? j + 1 : esc(o.texto)}</span>`).join('')}</span></div>`).join('')}
       </div>`
     }).join('')}
     ${bateria.consentimiento ? `<h2>Consentimiento</h2><p>${esc(bateria.consentimiento)}</p>

@@ -9,9 +9,12 @@ Escribe:
   supabase/semillas/problemas.json
   supabase/migraciones/32_instrumentos_iniciales.sql — idempotente: inserta lo
       que falta y NO pisa lo que la psicóloga ya haya editado desde la app.
+  supabase/migraciones/34_bienestar_y_alcohol.sql — igual, con BPS y ADS.
 
 Fuentes:
   · Rosenberg, BAI y BDI-II: las hojas de respuesta de la clínica (docx).
+  · BPS (Ryff, 39 ítems) y ADS (Skinner y Horn): hojas «CODIGO 28» de la
+    clínica (PDF), con su tabla de calificación.
   · Mini-Mult (Kincannon, 1968; adaptación rusa СМОЛ de Zaitsev): ítems,
     clave y normas tomados de github.com/vilnar/quiz (GPL-2.0), traducidos al
     español. Las normas T son las de esa adaptación y se pueden editar desde
@@ -302,7 +305,167 @@ minimult = {
     },
 }
 
-INSTRUMENTOS = [rosenberg, bai, bdi, minimult]
+# ------------------------------------------------------------------ Ryff --
+# Escala de Bienestar Psicológico de Ryff, versión española de 39 ítems
+# (Díaz et al., 2006), según la hoja «BPS» de la clínica: 6 alternativas,
+# total con cortes FAES y seis dimensiones con su corrección.
+RYFF_ITEMS = [
+    "Cuando repaso la historia de mi vida estoy contento con cómo han resultado las cosas.",
+    "A menudo me siento solo porque tengo pocos amigos íntimos con quién hablar de mis problemas.",
+    "No tengo miedo de expresar mis opiniones, aun cuando son opuestas a las opiniones de los demás.",
+    "Me preocupa cómo otra gente evalúa las elecciones que he hecho en mi vida.",
+    "Me resulta difícil dirigir mi vida hacia un camino que me satisfaga.",
+    "Disfruto haciendo planes para el futuro y trabajar para hacerlos realidad.",
+    "En general, me siento seguro y positivo conmigo mismo.",
+    "No tengo muchas personas que quieran escucharme cuando necesito hablar.",
+    "Tiendo a preocuparme sobre lo que otra gente piensa de mí.",
+    "Me juzgo por lo que yo creo que es importante, no por lo que otros piensan es importante.",
+    "He sido capaz de construir un hogar y un modo de vida a mi gusto.",
+    "Soy una persona activa al realizar los proyectos que propuse para mí mismo.",
+    "Si tuviera la oportunidad, hay muchas cosas de mí mismo que cambiaría.",
+    "Siento que mis amistades me aportan muchas cosas.",
+    "Tiendo a estar influenciado por la gente con fuertes convicciones.",
+    "En general, siento que soy responsable de la situación en la que vivo.",
+    "Me siento bien cuando pienso en lo que he hecho en el pasado y lo que espero hacer en el futuro.",
+    "Mis objetivos en la vida han sido más una fuente de satisfacción que de frustración para mí.",
+    "Me gusta la mayor parte de los aspectos de mi personalidad.",
+    "Me parece que la mayor parte de las personas tienen más amigos que yo.",
+    "Tengo confianza en mis opiniones incluso si son contrarias al consenso general.",
+    "Las demandas de la vida diaria a menudo me deprimen.",
+    "Tengo clara la dirección y el objetivo de mi vida.",
+    "En general, con el tiempo siento que sigo aprendiendo más sobre mí mismo.",
+    "En muchos aspectos, me siento decepcionado de mis logros en la vida.",
+    "No he experimentado muchas relaciones cercanas y de confianza.",
+    "Es difícil para mí expresar mis propias opiniones en asuntos polémicos.",
+    "Soy bastante bueno manejando muchas de mis responsabilidades en la vida diaria.",
+    "No tengo claro qué es lo que intento conseguir en la vida.",
+    "Hace mucho tiempo que dejé de intentar hacer grandes mejoras o cambios en mi vida.",
+    "En su mayor parte, me siento orgulloso de quien soy y la vida que llevo.",
+    "Sé que puedo confiar en mis amigos, y ellos saben que pueden confiar en mí.",
+    "A menudo cambio mis decisiones si mis amigos o mi familia están en desacuerdo.",
+    "No quiero intentar nuevas formas de hacer las cosas; mi vida está bien como está.",
+    "Pienso que es importante tener nuevas experiencias que desafíen lo que uno piensa de sí mismo y del mundo.",
+    "Cuando pienso en ello, realmente con los años no he mejorado mucho como persona.",
+    "Tengo la sensación de que con el tiempo me he desarrollado mucho como persona.",
+    "Para mí, la vida ha sido un proceso continuo de estudio, cambio y crecimiento.",
+    "Si me sintiera infeliz con mi situación de vida daría los pasos más eficaces para cambiarla.",
+]
+assert len(RYFF_ITEMS) == 39
+# Ítems redactados en sentido negativo: se invierten (7 − valor) para que
+# un puntaje alto signifique siempre más bienestar (Díaz et al., 2006).
+RYFF_INVERTIDOS = [2, 4, 5, 8, 9, 13, 15, 20, 22, 25, 26, 27, 29, 30, 33, 34, 36]
+# Dimensiones y rangos de la hoja de corrección. (alto desde, medio desde)
+RYFF_DIMENSIONES = [
+    ("autoaceptacion", "Autoaceptación", [1, 7, 13, 19, 25, 31], 27, 18),
+    ("dominio", "Dominio del entorno", [5, 11, 16, 22, 28, 39], 27, 18),
+    ("relaciones", "Relaciones positivas", [2, 8, 14, 20, 26, 32], 27, 18),
+    ("crecimiento", "Crecimiento personal", [24, 30, 34, 35, 36, 37, 38], 32, 21),
+    ("autonomia", "Autonomía", [3, 4, 9, 10, 15, 21, 27, 33], 36, 24),
+    ("proposito", "Propósito en la vida", [6, 12, 17, 18, 23, 29], 27, 18),
+]
+assert sorted(n for d in RYFF_DIMENSIONES for n in d[2]) == list(range(1, 40))
+ryff = {
+    "clave": "ryff", "nombre": "Escala de Bienestar Psicológico de Ryff", "sigla": "BPS",
+    "autores": "Ryff, 1989; versión española de 39 ítems de Díaz et al., 2006",
+    "descripcion": "Bienestar psicológico: 39 afirmaciones de 1 a 6 en seis dimensiones (autoaceptación, dominio del entorno, relaciones positivas, crecimiento personal, autonomía y propósito en la vida). Un total bajo indica vulnerabilidad y pide acompañamiento prioritario.",
+    "instrucciones": "Indique su nivel de acuerdo o de desacuerdo con cada una de las afirmaciones. Elija la respuesta que mejor se apegue a su realidad.",
+    "orden": 50,
+    "definicion": {
+        "opciones": [
+            {"valor": 1, "texto": "Totalmente en desacuerdo"},
+            {"valor": 2, "texto": "En desacuerdo"},
+            {"valor": 3, "texto": "Algunas veces de acuerdo"},
+            {"valor": 4, "texto": "Frecuentemente de acuerdo"},
+            {"valor": 5, "texto": "De acuerdo"},
+            {"valor": 6, "texto": "Totalmente de acuerdo"},
+        ],
+        "items": [{"n": i + 1, "texto": t} for i, t in enumerate(RYFF_ITEMS)],
+        "escalas": [{
+            "clave": "total", "nombre": "Bienestar psicológico", "items": "todos",
+            "invertidos": RYFF_INVERTIDOS, "usa": "bruta",
+            "rangos": [
+                {"desde": 39, "hasta": 116, "nivel": "severo", "etiqueta": "Bienestar psicológico bajo: acompañamiento clínico prioritario", "problema": "bienestar_bajo"},
+                {"desde": 117, "hasta": 140, "nivel": "leve", "etiqueta": "Bienestar psicológico moderado: seguimiento sin emergencia", "problema": "bienestar_bajo"},
+                {"desde": 141, "hasta": 175, "nivel": "normal", "etiqueta": "Bienestar psicológico alto"},
+                {"desde": 176, "hasta": 234, "nivel": "normal", "etiqueta": "Bienestar psicológico elevado"},
+            ],
+        }] + [{
+            # Las dimensiones orientan la lectura; sólo el total genera hallazgo.
+            "clave": c, "nombre": nom, "items": its,
+            "invertidos": [n for n in its if n in RYFF_INVERTIDOS], "usa": "bruta",
+            "rangos": [
+                {"desde": len(its), "hasta": medio - 1, "nivel": "normal", "etiqueta": f"{nom}: bajo"},
+                {"desde": medio, "hasta": alto - 1, "nivel": "normal", "etiqueta": f"{nom}: medio"},
+                {"desde": alto, "hasta": 6 * len(its), "nivel": "normal", "etiqueta": f"{nom}: alto"},
+            ],
+        } for c, nom, its, alto, medio in RYFF_DIMENSIONES],
+        "alertas": [],
+    },
+}
+
+# ------------------------------------------------------------------- ADS --
+# Escala de Dependencia al Alcohol (Skinner y Horn, 1984), hoja «ADS» de la
+# clínica: 25 ítems con alternativas propias que valen de 0 a 1, 2 o 3.
+ADS = [
+    ("¿Cuánto tomó la última vez que ingirió alcohol?", ["Lo suficiente como para ponerme contento", "Lo suficiente para emborracharme", "Lo suficiente para perderme"]),
+    ("¿Con frecuencia tiene crudas los domingos o los lunes por la mañana?", ["No", "Sí"]),
+    ("¿Tuvo temblores cuando dejó de tomar (en las manos o un temblor interno)?", ["No", "Algunas veces", "Casi siempre que tomo"]),
+    ("¿Se puso mal (vómitos, dolor de estómago) cuando tomó?", ["No", "Algunas veces", "Casi siempre que tomo"]),
+    ("¿Ha visto, sentido u oído cosas que no existen, estando muy ansioso, inquieto y alterado?", ["No", "Una vez", "Varias veces"]),
+    ("¿Cuando toma se tropieza, se va de lado o camina en «zigzag»?", ["No", "Algunas veces", "Varias veces"]),
+    ("¿Se sintió con mucho calor o excesivamente sudoroso como consecuencia de haber tomado?", ["No", "Algunas veces", "Varias veces"]),
+    ("¿Vio cosas que en realidad no existían como consecuencia de haber tomado?", ["No", "Una vez", "Varias veces"]),
+    ("¿Le ha dado miedo pensar en no tener un trago a la mano cuando lo necesite?", ["No", "Algunas veces", "Varias veces"]),
+    ("¿Tuvo lagunas mentales (pérdida de memoria, sin perderse totalmente) como resultado de la bebida?", ["No", "Algunas veces", "Frecuentemente", "Casi siempre que tomo"]),
+    ("¿Cargó una botella con usted o la escondió en algún lugar para tenerla a la mano?", ["No", "Algunas veces", "Casi siempre"]),
+    ("Después de un periodo de abstinencia (sin beber), ¿terminó usted por tomar fuertemente de nuevo?", ["No", "Algunas veces", "Casi siempre"]),
+    ("¿Llegó usted a perderse completamente como resultado de haber tomado?", ["No", "Alguna vez", "Más de una vez"]),
+    ("¿Tuvo ataques (crisis) después de un periodo en que tomó?", ["No", "Alguna vez", "Varias veces"]),
+    ("¿Bebió a lo largo del día?", ["No", "Sí"]),
+    ("Después de beber fuertemente, ¿sintió que su pensamiento estaba confuso o poco claro?", ["No", "Sí, pero sólo unas horas", "Sí, durante unos dos días", "Sí, por muchos días"]),
+    ("Como resultado de la bebida, ¿sintió que su corazón latía rápidamente?", ["No", "Alguna vez", "Varias veces"]),
+    ("¿Pensó constantemente en tomar alcohol?", ["No", "Sí"]),
+    ("Como resultado de haber tomado, ¿oyó cosas que realmente no existían?", ["No", "Algunas veces", "Casi siempre"]),
+    ("¿Tuvo sensaciones raras o atemorizantes cuando tomó?", ["No", "Algunas veces", "Casi siempre"]),
+    ("Como resultado de haber tomado, ¿sintió cosas que se arrastraban en su cuerpo y que realmente no existían (gusanos, arañas, etc.)?", ["No", "Algunas veces", "Varias veces"]),
+    ("Con relación a las lagunas mentales (pérdida de la memoria):", ["Nunca he tenido una laguna", "He tenido lagunas que duran menos de una hora", "He tenido lagunas que duran varias horas", "He tenido lagunas que duran un día o más"]),
+    ("¿Trató de dejar de beber sin lograrlo?", ["No", "Una vez", "Varias veces"]),
+    ("¿Suele tomar muy rápido?", ["No", "Sí"]),
+    ("Después de tomar una o dos copas, ¿generalmente podía dejar de tomar?", [("Sí", 0), ("No", 1)]),
+]
+assert len(ADS) == 25
+ads_items = []
+for i, (texto, ops) in enumerate(ADS):
+    o = [{"valor": v, "rotulo": str(v), "texto": t}
+         for v, t in ((op[1], op[0]) if isinstance(op, tuple) else (j, op) for j, op in enumerate(ops))]
+    ads_items.append({"n": i + 1, "texto": texto, "opciones": o})
+assert sum(max(o["valor"] for o in it["opciones"]) for it in ads_items) == 48
+ads = {
+    "clave": "ads", "nombre": "Escala de Dependencia al Alcohol", "sigla": "ADS",
+    "autores": "Skinner y Horn, 1984",
+    "descripcion": "Gravedad de la dependencia al alcohol: 25 preguntas sobre consumo, pérdida de control y síntomas de abstinencia; total de 0 a 48.",
+    "instrucciones": "Las siguientes preguntas se refieren a su forma de tomar bebidas alcohólicas. Elija en cada una la respuesta que mejor describa su caso. Si no toma alcohol, responda «No» (o la primera alternativa).",
+    "orden": 60,
+    "definicion": {
+        "items": ads_items,
+        "escalas": [{
+            "clave": "total", "nombre": "Dependencia al alcohol", "items": "todos", "usa": "bruta",
+            "rangos": [
+                {"desde": 0, "hasta": 7, "nivel": "normal", "etiqueta": "No dependiente"},
+                {"desde": 8, "hasta": 13, "nivel": "leve", "etiqueta": "Dependencia baja", "problema": "consumo_alcohol"},
+                {"desde": 14, "hasta": 21, "nivel": "moderado", "etiqueta": "Dependencia moderada", "problema": "consumo_alcohol"},
+                {"desde": 22, "hasta": 30, "nivel": "severo", "etiqueta": "Dependencia: riesgo sustancial", "problema": "consumo_alcohol"},
+                {"desde": 31, "hasta": 48, "nivel": "severo", "etiqueta": "Dependencia severa", "problema": "consumo_alcohol"},
+            ],
+        }],
+        "alertas": [],
+    },
+}
+
+# Los de la migración 32 y los que llegaron después (34).
+INSTRUMENTOS_32 = [rosenberg, bai, bdi, minimult]
+INSTRUMENTOS_34 = [ryff, ads]
+INSTRUMENTOS = INSTRUMENTOS_32 + INSTRUMENTOS_34
 
 # ------------------------------------------------------------ problemas --
 # Regiones: identificadores del atlas AAL (Tzourio-Mazoyer et al., 2002).
@@ -358,32 +521,47 @@ PROBLEMAS = [
          descripcion="Refiere abuso de bebidas alcohólicas.",
          explicacion="Estriado (caudado y putamen, vía de recompensa), orbitofrontal medial, ínsula (deseo de consumo) y vermis cerebeloso, sensible al daño por alcohol."),
 ]
+PROBLEMAS_34 = [
+    dict(clave="bienestar_bajo", nombre="Bienestar psicológico bajo", color="#475569", orden=120,
+         regiones=[23, 24, 25, 26, 31, 32, 35, 36, 67, 68, 29, 30, 71, 72],
+         descripcion="Insatisfacción, dependencia excesiva, falta de dirección o estancamiento; puede acompañarse de pensamientos negativistas o derrotistas.",
+         explicacion="Red de autorreferencia y valoración (prefrontal medial, orbitofrontal medial, cingulado anterior y posterior, precúneo), ínsula y núcleo caudado, que participan en la satisfacción, el propósito y la recompensa."),
+]
+PROBLEMAS = PROBLEMAS + PROBLEMAS_34
 
 def sql_txt(s):
     return "null" if s is None else "'" + str(s).replace("'", "''") + "'"
+
+def sql_problemas(problemas):
+    return ["insert into ps_problemas (clave, nombre, descripcion, regiones, explicacion, color, orden) values ("
+            f"{sql_txt(p['clave'])}, {sql_txt(p['nombre'])}, {sql_txt(p['descripcion'])}, "
+            f"'{{{','.join(map(str, p['regiones']))}}}', {sql_txt(p['explicacion'])}, {sql_txt(p['color'])}, {p['orden']}) "
+            "on conflict (clave) do nothing;" for p in problemas]
+
+def sql_instrumentos(instrumentos):
+    return ["insert into ps_instrumentos (clave, nombre, sigla, autores, descripcion, instrucciones, definicion, orden) values ("
+            f"{sql_txt(i['clave'])}, {sql_txt(i['nombre'])}, {sql_txt(i['sigla'])}, {sql_txt(i['autores'])}, "
+            f"{sql_txt(i['descripcion'])}, {sql_txt(i['instrucciones'])}, "
+            f"{sql_txt(json.dumps(i['definicion'], ensure_ascii=False))}::jsonb, {i['orden']}) on conflict (clave) do nothing;"
+            for i in instrumentos]
+
+def cabecera(titulo):
+    return ["-- ============================================================================",
+            f"-- {titulo}",
+            "-- ----------------------------------------------------------------------------",
+            "-- GENERADO por `herramientas/semilla.py`: no editar a mano.",
+            "-- Idempotente: `on conflict do nothing`, así que volver a correrla no pisa lo",
+            "-- que la psicóloga haya ajustado desde la pantalla «Instrumentos».",
+            "-- ============================================================================", ""]
 
 def main():
     os.makedirs(os.path.join(RAIZ, "supabase", "semillas"), exist_ok=True)
     json.dump(INSTRUMENTOS, open(os.path.join(RAIZ, "supabase/semillas/instrumentos.json"), "w"), ensure_ascii=False, indent=1)
     json.dump(PROBLEMAS, open(os.path.join(RAIZ, "supabase/semillas/problemas.json"), "w"), ensure_ascii=False, indent=1)
-    out = ["-- ============================================================================",
-           "-- 32 · INSTRUMENTOS, PROBLEMAS Y BATERÍA INICIALES",
-           "-- ----------------------------------------------------------------------------",
-           "-- GENERADO por `herramientas/semilla.py`: no editar a mano.",
-           "-- Idempotente: `on conflict do nothing`, así que volver a correrla no pisa lo",
-           "-- que la psicóloga haya ajustado desde la pantalla «Instrumentos».",
-           "-- ============================================================================", ""]
-    for p in PROBLEMAS:
-        out.append("insert into ps_problemas (clave, nombre, descripcion, regiones, explicacion, color, orden) values ("
-                   f"{sql_txt(p['clave'])}, {sql_txt(p['nombre'])}, {sql_txt(p['descripcion'])}, "
-                   f"'{{{','.join(map(str, p['regiones']))}}}', {sql_txt(p['explicacion'])}, {sql_txt(p['color'])}, {p['orden']}) "
-                   "on conflict (clave) do nothing;")
+    out = cabecera("32 · INSTRUMENTOS, PROBLEMAS Y BATERÍA INICIALES")
+    out += sql_problemas([p for p in PROBLEMAS if p not in PROBLEMAS_34])
     out.append("")
-    for i in INSTRUMENTOS:
-        out.append("insert into ps_instrumentos (clave, nombre, sigla, autores, descripcion, instrucciones, definicion, orden) values ("
-                   f"{sql_txt(i['clave'])}, {sql_txt(i['nombre'])}, {sql_txt(i['sigla'])}, {sql_txt(i['autores'])}, "
-                   f"{sql_txt(i['descripcion'])}, {sql_txt(i['instrucciones'])}, "
-                   f"{sql_txt(json.dumps(i['definicion'], ensure_ascii=False))}::jsonb, {i['orden']}) on conflict (clave) do nothing;")
+    out += sql_instrumentos(INSTRUMENTOS_32)
     out.append("")
     out.append("""-- Dos baterías de partida: la de tamizaje periódico y la completa con Mini-Mult.
 insert into ps_baterias (nombre, descripcion, instrucciones, consentimiento, instrumentos)
@@ -399,6 +577,11 @@ select 'Evaluación integral', 'Tamizaje emocional más perfil de personalidad M
        array['rosenberg','bai','bdi2','minimult']
  where not exists (select 1 from ps_baterias where nombre = 'Evaluación integral');""")
     open(os.path.join(RAIZ, "supabase/migraciones/32_instrumentos_iniciales.sql"), "w").write("\n".join(out) + "\n")
+    out = cabecera("34 · BIENESTAR PSICOLÓGICO (RYFF) Y DEPENDENCIA AL ALCOHOL (ADS)")
+    out += sql_problemas(PROBLEMAS_34)
+    out.append("")
+    out += sql_instrumentos(INSTRUMENTOS_34)
+    open(os.path.join(RAIZ, "supabase/migraciones/34_bienestar_y_alcohol.sql"), "w").write("\n".join(out) + "\n")
     print("ok", len(INSTRUMENTOS), "instrumentos,", len(PROBLEMAS), "problemas")
 
 if __name__ == "__main__":
